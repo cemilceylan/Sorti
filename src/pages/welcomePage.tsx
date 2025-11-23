@@ -8,7 +8,7 @@ interface Props {
 
 export function WelcomePage(prop: Props) {
     return (
-    <div>
+    <div className="WelcomePage">
     <img className='WelcomeImage' src={welcomeImage}></img>
     <div>
       <h1>Recycle Smarter, Not Harder</h1>
