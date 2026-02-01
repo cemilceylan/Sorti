@@ -23,8 +23,10 @@
 *   **Task:** Merge split datasets (`cardboard` + `cardboard2` -> `cardboard`) to create unified classes.
 *   **Concept:** Labeled Data, Training vs. Test splits, Image structures (Pixels, Channels).
 
-### 2. Data Loading & Visualization
-*   **Task:** Use `tf.keras.utils.image_dataset_from_directory`.
+### 2. Data Loading & Visualization (In Progress)
+*   **Status:** ✅ Environment Configured (Python 3.10).
+*   **Completed:** Single Image Loading (Manual `tf.io` pipeline) & Visualization.
+*   **Next Task:** Scale up using `tf.keras.utils.image_dataset_from_directory`.
 *   **Concept:** Tensors, Batch Size, Image Resizing (standardizing input).
 
 ### 3. Building the First CNN (The "Hello World")

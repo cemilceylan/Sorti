@@ -22,7 +22,8 @@
 This project follows a milestone-based approach defined in `roadmap.md`.
 **Current Status:**
 1.  **Data Cleaning:** Complete.
-2.  **Next Step:** Data Loading & Visualization (Milestone 2).
+2.  **Environment:** Fixed (Python 3.10 + TensorFlow).
+3.  **In Progress:** Data Loading & Visualization (Milestone 2) - Single image loading verified.
 
 ### Key Commands (Anticipated)
 Since this is a Jupyter-based workflow, execution will primarily happen within notebook cells.
@@ -35,4 +36,5 @@ Since this is a Jupyter-based workflow, execution will primarily happen within n
     *   Explain concepts first (Tensors, Convolution, etc.).
     *   Provide snippets/examples.
     *   Ask the user to implement the final solution.
+    *   **Pacing Rule:** If the user indicates I am going too fast, asks for more detail, or asks a clarifying question, I must **restart the explanation of that specific concept anew** with more depth and clarity before proceeding.
 *   **Coding Style:** Idiomatic TensorFlow/Keras (Functional API or Sequential).
