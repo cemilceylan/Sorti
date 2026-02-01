@@ -156,7 +156,33 @@ Imagine a student who memorizes the textbook word-for-word but fails the exam be
 We only add layers if the model is "stupid" (e.g., gets stuck at 60% Training Accuracy).
 Since your model is "smart but lazy" (98% Training), we punish it with **Augmentation**.
 
+### 6.5. Dropout (Plan B)
+If Augmentation isn't enough, we use Dropout to attack the "memorization" capacity of the model directly.
+*   **The Analogy:** Imagine a group project where one "genius" student does all the work. If that student gets sick, the group fails. Dropout randomly "bans" 50% of the students (neurons) during each study session (epoch). This forces every student to learn the material, creating a more robust team.
+*   **The Implementation:** We place a `Dropout(0.5)` layer right after the `Flatten()` layer.
+*   **Why only before the Dense layer?**
+    1.  **Conv Layers (The Eyes):** These share weights across the image. A typical Conv layer has ~500 to 5,000 parameters. It's hard to "over-memorize" with such a small capacity.
+    2.  **Dense Layers (The Brain):** This is where the parameters explode. A single Dense layer can have **8.4 million parameters**. 99.9% of the model's memory capacity lives here.
+    3.  **The Firewall:** Placing Dropout here acts as a firewall, stopping the massive Dense layer from conspiring to memorize exact training pixels.
+
 ---
 
-## 7. Next Steps
+## 7. The Science of Comparison
+
+When comparing different experiments (Naive vs. Augmented vs. Dropout), we do not need to keep the epoch counts the same. In fact, doing so would be unscientific.
+
+### 7.1. Convergence vs. Completion
+Every model "converges" (reaches its top speed) at a different rate.
+*   **Naive Model:** Learning is "fast but fake." It finds patterns (or cheats) in 5-10 epochs.
+*   **Dropout Model:** Learning is "slow but real." Because we are making the task harder, the model needs more time (40+ epochs) to reach its potential. 
+
+### 7.2. Metrics that Matter
+In a final report, we compare **Best Performance**, not a fixed point in time.
+1.  **Peak Validation Accuracy:** The highest score the model ever achieved on the Quiz Pile.
+2.  **Lowest Validation Loss:** The point where the model was most "certain" and generalized best.
+3.  **The Generalization Gap:** The distance between Training and Validation accuracy. A 2% gap is "healthy"; a 20% gap is "overfitting."
+
+---
+
+## 8. Next Steps
 *   **Baseline First:** Do not start with complex techniques (like Data Augmentation). Build a simple "Naive" model first. Watch it fail (Overfit). Then apply the fix. This proves the value of your solution.
