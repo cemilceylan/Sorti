@@ -93,6 +93,19 @@ export function HomePage() {
     }
   };
 
+  // Trash Separation Mapping
+  const DISPOSAL_INFO: Record<string, string> = {
+    battery: "🔋 Battery Collection (Retail / Recycling Center)",
+    biological: "🍏 Bio Waste (Green/Brown Bin)",
+    cardboard: "📦 Paper/Cardboard (Blue Bin)",
+    clothes: "👕 Textile Container / Donation",
+    glass: "🍾 Glass Container (sorted by color)",
+    metal: "🥫 Recycling Bin (Yellow Bin/Bag)",
+    paper: "📄 Paper (Blue Bin)",
+    plastic: "🥤 Recycling Bin (Yellow Bin/Bag)",
+    shoes: "👞 Textile Container (tied in pairs)"
+  };
+
   return (
     <div className="app-container">
       {!preview && !isCameraOn && (
@@ -130,7 +143,15 @@ export function HomePage() {
             <div className="result-card">
                 <div className="result-title">Detected Item</div>
                 <div className="result-value">{result.className.toUpperCase()}</div>
-                <div className="result-confidence">Confidence: {(result.probability * 100).toFixed(1)}%</div>
+                
+                <div className="disposal-info" style={{ marginTop: '10px', fontWeight: 'bold', color: '#1B5E20' }}>
+                  <span>Where does it go? </span>
+                  <div style={{ fontSize: '1.2rem', marginTop: '4px' }}>
+                    {DISPOSAL_INFO[result.className] || "❓ Unknown"}
+                  </div>
+                </div>
+
+                <div className="result-confidence" style={{ marginTop: '8px' }}>Confidence: {(result.probability * 100).toFixed(1)}%</div>
             </div>
           )}
         </div>
