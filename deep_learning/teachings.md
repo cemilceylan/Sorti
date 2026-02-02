@@ -319,6 +319,17 @@ We tell EarlyStopping to ignore the "Fine" and only look at the **Pure Error** (
 *   **Bad Monitoring:** The student stops studying but spends hours making their handwriting perfect. Their "Total Score" goes up, but they aren't learning.
 *   **Good Monitoring:** We only look at the "Correct Answers" score. If that stops going up, we stop the study session, regardless of how neat the handwriting is.
 
+### 9.4. Why track `val_loss` instead of `val_accuracy`?
+While accuracy is what we ultimately care about, `val_loss` is a better "compass" for training.
+*   **Sensitivity:** Accuracy is a "jumpy" metric. A model's confidence can improve from 51% to 99% without the accuracy changing at all (it was already "correct").
+*   **The Early Warning System:** `val_loss` usually starts increasing (signaling overfitting) several epochs before `val_accuracy` starts dropping. Monitoring loss allows the `EarlyStopping` callback to pull the plug earlier, saving the model from memorization.
+
+### 9.5. Entropy vs. Cross-Entropy
+Students often ask if we should track "Entropy" to see if the model is confused.
+*   **Entropy:** Measures internal uncertainty ("How confused am I?"). A model can be 100% certain but 100% wrong (arrogance). Entropy would be zero in both cases.
+*   **Cross-Entropy (`val_loss`):** Measures the distance from the truth ("How wrong am I?"). It punishes the model for being **Confidently Wrong**.
+*   **Conclusion:** We track Cross-Entropy because it forces the model to be both confident *and* correct.
+
 ---
 
 ## 10. Summary of the "Improved Model" (Run 5)
