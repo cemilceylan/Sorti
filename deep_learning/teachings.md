@@ -22,6 +22,20 @@ Even on CPU-only machines, we must optimize the flow of data.
 *   **The Bottleneck:** The CPU has to load/resize images *and* do the math for training.
 *   **Prefetching (`.prefetch(AUTOTUNE)`):** Uses a background thread to load/resize the *next* batch of images while the model is currently training on the *current* batch. This parallel processing ensures the training math never waits for data loading.
 
+### 1.4. Advanced Optimization (Caching & AUTOTUNE)
+For large datasets, we use three commands to ensure the CPU doesn't crash or stall.
+1.  **`.cache()`:** 
+    *   **Concept:** "Read once, remember forever."
+    *   **How it works:** On Epoch 1, the model reads images from the hard drive (Slow). On Epoch 2+, it reads them from RAM (Fast).
+    *   **Benefit:** Eliminates disk I/O bottlenecks.
+2.  **`.shuffle(1000)`:**
+    *   **Concept:** "Shuffle the deck every time."
+    *   **Why after cache?** If we shuffle *before* caching, we cache the *order*. If we shuffle *after* caching, we get a new random order every epoch. This prevents the model from learning patterns in the sequence (e.g., "Glass always follows Metal").
+3.  **`AUTOTUNE`:**
+    *   **Concept:** "Let TensorFlow decide."
+    *   **Usage:** `prefetch(buffer_size=tf.data.AUTOTUNE)`.
+    *   **Benefit:** TensorFlow dynamically adjusts how much memory to use for buffering based on your specific hardware (CPU vs GPU).
+
 ---
 
 ## 2. Image Preprocessing
