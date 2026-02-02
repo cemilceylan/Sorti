@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { classifyImage } from "../scripts/model_loader";
+import '../App.css';
 
 export function HomePage() {
   const [preview, setPreview] = useState<string | null>(null);
@@ -29,14 +30,16 @@ export function HomePage() {
   const startCamera = async () => {
     try {
       setIsCameraOn(true);
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: "environment" } // Prefer back camera on mobile
+      });
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
     } catch (err) {
       console.error("Error accessing camera:", err);
-      alert("Could not access camera.");
+      alert("Could not access camera. Please allow permissions.");
       setIsCameraOn(false);
     }
   };
@@ -91,66 +94,89 @@ export function HomePage() {
   };
 
   return (
-    <div>
-      <h1>Upload or Capture Image</h1>
+    <div className="app-container">
+      {!preview && !isCameraOn && (
+          <h1>Sorti Scanner</h1>
+      )}
 
+      {/* Preview Section (Image Loaded/Taken) */}
       {preview && (
-        <div style={{ marginBottom: "20px" }}>
+        <div className="preview-section">
           <img
             ref={imgRef}
             src={preview}
-            alt="preview"
-            width="300"
-            style={{ display: "block", marginBottom: "10px", borderRadius: "8px" }}
+            alt="Trash Preview"
+            className="preview-image"
           />
-          <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-            <button onClick={handleAnalyze} disabled={isAnalyzing}>
-                {isAnalyzing ? "Analyzing..." : "Analyze Trash"}
+          
+          <div className="btn-group">
+            <button 
+                className="btn btn-primary" 
+                onClick={handleAnalyze} 
+                disabled={isAnalyzing}
+            >
+                {isAnalyzing ? "Analyzing..." : "Identify Item"}
             </button>
-            <button onClick={handleRemove} disabled={isAnalyzing}>Remove Image</button>
+            <button 
+                className="btn btn-secondary" 
+                onClick={handleRemove} 
+                disabled={isAnalyzing}
+            >
+                Reset
+            </button>
           </div>
 
           {result && (
-            <div style={{ marginTop: '20px', padding: '15px', border: '1px solid #4CAF50', borderRadius: '8px', backgroundColor: '#e8f5e9', color: '#2e7d32' }}>
-                <h3>Result:</h3>
-                <p><strong>Type:</strong> {result.className.toUpperCase()}</p>
-                <p><strong>Confidence:</strong> {(result.probability * 100).toFixed(2)}%</p>
+            <div className="result-card">
+                <div className="result-title">Detected Item</div>
+                <div className="result-value">{result.className.toUpperCase()}</div>
+                <div className="result-confidence">Confidence: {(result.probability * 100).toFixed(1)}%</div>
             </div>
           )}
         </div>
       )}
 
+      {/* Camera/Upload Section */}
       {!preview && (
-        <div style={{ marginBottom: "20px", border: "1px dashed #ccc", padding: "10px" }}>
-          {!isCameraOn ? (
-            <button onClick={startCamera}>Open Camera</button>
-          ) : (
-            <div>
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                width="300"
-                style={{ display: "block", marginBottom: "10px", borderRadius: "8px" }}
-              />
-              <div style={{ display: "flex", gap: "10px" }}>
-                <button onClick={capturePhoto}>Take Photo</button>
-                <button onClick={stopCamera}>Cancel</button>
-              </div>
+        <div className="camera-section">
+          
+          {/* Live Camera View */}
+          {isCameraOn ? (
+            <div className="camera-active-wrapper">
+                <div className="camera-container">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                  />
+                </div>
+                <div className="btn-group">
+                    <button className="btn btn-primary" onClick={capturePhoto}>Capture</button>
+                    <button className="btn btn-secondary" onClick={stopCamera}>Cancel</button>
+                </div>
             </div>
+          ) : (
+             // Initial State: Buttons to start
+             <div className="initial-actions">
+                <button className="btn btn-primary mb-4" onClick={startCamera}>
+                    Open Camera
+                </button>
+                
+                <div className="file-input-wrapper">
+                    <span className="file-input-label">Or upload from gallery</span>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="file-input"
+                    />
+                </div>
+             </div>
           )}
         </div>
       )}
-
-      <hr />
-
-      <p>Or upload from device:</p>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-      />
     </div>
   );
 }

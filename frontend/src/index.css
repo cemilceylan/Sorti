@@ -1,15 +1,70 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  /* Color Palette - Eco/Nature Theme */
+  --color-bg-start: #E0F7FA; /* Light Cyan */
+  --color-bg-end: #E8F5E9;   /* Light Green */
+  --color-primary: #4CAF50;  /* Fresh Green */
+  --color-primary-hover: #43A047;
+  --color-secondary: #81C784;
+  --color-text-main: #263238; /* Dark Blue Grey */
+  --color-text-muted: #546E7A;
+  --color-white: #ffffff;
+  --color-danger: #ef5350;
+  
+  /* Spacing & Layout */
+  --radius-lg: 20px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --shadow-soft: 0 10px 25px rgba(0,0,0,0.05);
+  --shadow-card: 0 4px 6px rgba(0,0,0,0.02);
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Typography */
+  --font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
 }
 
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background: linear-gradient(135deg, var(--color-bg-start) 0%, var(--color-bg-end) 100%);
+  background-attachment: fixed; /* Full height gradient */
+  color: var(--color-text-main);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Center the app on desktop */
+  padding: 20px;
+  line-height: 1.6;
+}
+
+#root {
+  width: 100%;
+  max-width: 480px; /* Mobile-first container size */
+  margin: 0 auto;
+}
+
+h1, h2, h3 {
+  color: var(--color-text-main);
+  line-height: 1.2;
+  margin-bottom: 0.5em;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1B5E20; /* Darker green for headings */
+}
+
+p {
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}

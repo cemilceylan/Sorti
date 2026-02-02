@@ -1,4 +1,3 @@
-
 interface Props {
     text: string;
     onButtonClick: () => void;
@@ -6,7 +5,7 @@ interface Props {
 
 export function ScanButton(props: Props) {
     return (
-        <button className="ScanButton" onClick={props.onButtonClick}>
+        <button className="btn btn-primary" onClick={props.onButtonClick}>
             {props.text}
         </button>
     );
