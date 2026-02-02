@@ -106,4 +106,42 @@ This document tracks the experiments, configurations, and results of our model t
 *   **vs. Run 3 (Dropout):** Adding depth and Batch Norm gained us **+11%** accuracy over the Dropout-only model.
 *   **Conclusion:** The combination of **Depth + Batch Norm + Dropout + Augmentation** is the winning formula for this dataset.
 
+---
+
+## Final Diagnostics (The "Polish")
+
+We analyzed the Champion Model using the Validation Set to identify specific weaknesses.
+
+### Classification Report
+| Class | Precision | Recall | F1-Score | Support |
+| :--- | :--- | :--- | :--- | :--- |
+| **battery** | 0.88 | 0.72 | 0.79 | 163 |
+| **biological** | 0.91 | **0.68** | **0.78** | 155 |
+| **cardboard** | 0.82 | 0.94 | 0.88 | 404 |
+| **clothes** | 0.90 | 0.92 | **0.91** | 408 |
+| **glass** | 0.88 | 0.86 | 0.87 | 497 |
+| **metal** | **0.70** | 0.89 | 0.78 | 269 |
+| **paper** | 0.83 | 0.89 | 0.86 | 386 |
+| **plastic** | 0.91 | 0.73 | 0.81 | 464 |
+| **shoes** | 0.87 | 0.87 | 0.87 | 302 |
+
+### Visual Analysis (Confusion Matrix)
+Using the generated heatmap (`confusion_matrix.png`), we identified specific "confusion clusters":
+
+1.  **The "Shiny Object" Problem (Metal/Plastic/Glass):**
+    *   **Metal Precision (0.70):** This is the model's weakest metric.
+    *   *The Mistake:* The model often mislabels **Plastic** as **Metal** (34 times) and **Glass** as **Metal** (25 times).
+    *   *Cause:* The model has learned that "Shiny = Metal". It struggles to distinguish between the metallic shine of a can and the specular reflection of clear plastic or glass.
+
+2.  **The "Biological" Ambiguity:**
+    *   **Biological Recall (0.68):** The model misses 32% of biological waste.
+    *   *The Mistake:* These errors are scattered. Biological items are misclassified as Batteries (1), Cardboard (9), Clothes (4), Metal (10), etc.
+    *   *Cause:* Unlike "Cardboard" (which is always brown and flat), "Biological" waste has no consistent shape or texture (apple core vs. banana peel vs. leaves). The model fails to find a unifying feature for this class.
+
+3.  **The "Paper vs. Cardboard" Overlap:**
+    *   18 Paper items were labeled as Cardboard. This is an expected error due to the visual similarity of the materials.
+
+### Final Conclusion
+The model is highly effective (**85% accuracy**) but exhibits human-like errors when dealing with reflective surfaces and amorphous biological objects. To improve further, we would need to specifically target the "Metal vs. Plastic" distinction, perhaps by adding color-based augmentation or higher resolution input.
+
 *   **Status:** **PROJECT COMPLETE. MODEL SAVED.**

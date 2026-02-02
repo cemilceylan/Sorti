@@ -242,5 +242,34 @@ To avoid losing the "best" version of a model during long runs, we use **Callbac
 
 ---
 
-## 11. Next Steps
+## 12. Future Improvements & Advanced Techniques
+
+To push the accuracy from **87%** to **95%+**, we would need to address the specific weaknesses identified in the Confusion Matrix (Metal vs. Plastic, Biological Ambiguity).
+
+### 12.1. Transfer Learning (The Industry Standard)
+*   **Concept:** Instead of training a model from scratch (random weights), we download a model like **MobileNetV2** or **ResNet50** that has already been trained on 14 million images (ImageNet).
+*   **Why?** These models already know what "edges", "circles", and "textures" look like. We just teach them the specific difference between *our* trash types.
+*   **Expected Gain:** Usually jumps straight to **90-95% accuracy** with very little training time.
+
+### 12.2. Addressing "Metal Paranoia" (Contrast Augmentation)
+*   **The Problem:** The model confuses shiny Plastic/Glass with Metal.
+*   **The Fix:** Add `tf.keras.layers.RandomContrast` and `RandomBrightness`.
+*   **Why?** By randomly changing the lighting and shine of the training images, the model is forced to stop relying solely on "brightness" as a feature for Metal. It must learn the *shape* of a crushed can vs. a smooth bottle.
+
+### 12.3. Addressing "Biological Ambiguity" (Resolution)
+*   **The Problem:** Biological waste (leaves, food) has fine textures that might be lost at 128x128 resolution.
+*   **The Fix:** Increase input size to **224x224** or higher.
+*   **Trade-off:** This requires more GPU memory and slower training, but it allows the model to see the "veins on a leaf" or the "pores on an orange peel," which are distinct from paper or cardboard.
+
+### 12.4. Why NOT Color Augmentation?
+*   **Idea:** `RandomHue` (changing colors).
+*   **Risk:** Trash classes have specific color associations.
+    *   **Brown:** Almost always Cardboard.
+    *   **Green/Clear:** Often Glass.
+    *   **Silver:** Metal.
+*   **Danger:** If we make a Cardboard box "Blue", the model might think it's Plastic. Unlike "Contrast" (lighting), "Color" is often a valid signal for trash. We must be careful not to destroy useful information.
+
+---
+
+## 13. Next Steps
 *   **Baseline First:** Do not start with complex techniques (like Data Augmentation). Build a simple "Naive" model first. Watch it fail (Overfit). Then apply the fix. This proves the value of your solution.
