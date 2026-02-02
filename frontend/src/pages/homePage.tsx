@@ -1,13 +1,17 @@
 import { useState, useRef } from "react";
+import { classifyImage } from "../scripts/model_loader";
 
 export function HomePage() {
   const [preview, setPreview] = useState<string | null>(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
+  const [result, setResult] = useState<{ className: string; probability: number } | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   //Refs for accessing DOM elements
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : undefined;
@@ -16,6 +20,7 @@ export function HomePage() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
+        setResult(null); // Clear previous result
       };
       reader.readAsDataURL(file);
     }
@@ -55,6 +60,7 @@ export function HomePage() {
         ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL("image/png");
         setPreview(dataUrl);
+        setResult(null); // Clear previous result
         stopCamera(); 
       }
     }
@@ -62,9 +68,25 @@ export function HomePage() {
 
   const handleRemove = () => {
     setPreview(null);
+    setResult(null);
     stopCamera(); // Ensure camera is off
     if (fileInputRef.current) {
       fileInputRef.current.value = ""; // Clear file input
+    }
+  };
+
+  const handleAnalyze = async () => {
+    if (imgRef.current) {
+      setIsAnalyzing(true);
+      try {
+        const prediction = await classifyImage(imgRef.current);
+        setResult(prediction);
+      } catch (error) {
+        console.error("Analysis failed:", error);
+        alert("Analysis failed. See console for details.");
+      } finally {
+        setIsAnalyzing(false);
+      }
     }
   };
 
@@ -75,12 +97,26 @@ export function HomePage() {
       {preview && (
         <div style={{ marginBottom: "20px" }}>
           <img
+            ref={imgRef}
             src={preview}
             alt="preview"
             width="300"
             style={{ display: "block", marginBottom: "10px", borderRadius: "8px" }}
           />
-          <button onClick={handleRemove}>Remove Image</button>
+          <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+            <button onClick={handleAnalyze} disabled={isAnalyzing}>
+                {isAnalyzing ? "Analyzing..." : "Analyze Trash"}
+            </button>
+            <button onClick={handleRemove} disabled={isAnalyzing}>Remove Image</button>
+          </div>
+
+          {result && (
+            <div style={{ marginTop: '20px', padding: '15px', border: '1px solid #4CAF50', borderRadius: '8px', backgroundColor: '#e8f5e9', color: '#2e7d32' }}>
+                <h3>Result:</h3>
+                <p><strong>Type:</strong> {result.className.toUpperCase()}</p>
+                <p><strong>Confidence:</strong> {(result.probability * 100).toFixed(2)}%</p>
+            </div>
+          )}
         </div>
       )}
 
