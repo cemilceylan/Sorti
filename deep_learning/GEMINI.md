@@ -19,16 +19,17 @@
 *   **`ProgData Notes....csv`**: Course schedule and lecture notes.
 
 ## 🚀 Usage & Workflow
-This project follows a milestone-based approach defined in `roadmap.md`.
+This project follows a streamlined **3-Run Strategy** (Act 1: Baseline, Act 2: Regularization, Act 3: Champion) as defined in `approach.md`.
+
 **Current Status:**
-1.  **Data Cleaning:** Complete.
-2.  **Environment:** Fixed (Python 3.10 + TensorFlow).
-3.  **In Progress:** Data Loading & Visualization (Milestone 2) - Single image loading verified.
+1.  **3-Run Strategy:** Run 1 (Baseline) analyzed; Run 2 & 3 in redo phase for consistent results.
+2.  **Documentation:** `beleg.md` (Draft complete), `results/results.md` (Detailed lab log started).
+3.  **Final Goal:** Achieve >85% accuracy and complete the 5-page "Beleg" and 20-minute defense presentation.
 
 ### Key Commands (Anticipated)
-Since this is a Jupyter-based workflow, execution will primarily happen within notebook cells.
-*   **Start Environment:** Launch Jupyter Notebook or Lab in this directory.
-*   **Dependency Management:** Ensure `tensorflow`, `numpy`, `matplotlib` are installed in the python environment.
+*   **Execution:** Training loops in `sorti.ipynb`.
+*   **Results:** Artifacts and metrics are stored in `results/`.
+*   **Analysis:** Diagnostics (Confusion Matrix) generated for the Champion model.
 
 ## 📝 Conventions & Agent Persona
 *   **AI Role:** Strict Mentor & Professor.
