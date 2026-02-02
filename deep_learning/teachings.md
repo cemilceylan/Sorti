@@ -30,9 +30,9 @@ Even on CPU-only machines, we must optimize the flow of data.
 *   **The Problem:** Digital images store colors as integers from **0 to 255** (8-bit).
 *   **The Solution:** Neural Networks work best with small, floating-point numbers (0.0 to 1.0).
 *   **Implementation:** We divide by 255.
-    *   `255` (White) $ightarrow$ `1.0`
-    *   `0` (Black) $ightarrow$ `0.0`
-    *   `127` (Gray) $ightarrow$ `~0.5`
+    *   `255` (White) $ightarrow$ `1.0`
+    *   `0` (Black) $ightarrow$ `0.0`
+    *   `127` (Gray) $ightarrow$ `~0.5`
 *   **Why?** Large inputs (like 255) can cause "exploding gradients" where the math becomes unstable. Small inputs keep the math well-behaved.
 
 ---
@@ -51,8 +51,8 @@ A CNN is a stack of layers, each transforming the data from pixels into abstract
 *   **Role:** The "Gatekeeper" that introduces non-linearity.
 *   **Formula:** $f(x) = max(0, x)$.
 *   **Logic:**
-    *   **Positive Input:** "Signal Found!" $ightarrow$ Pass it through.
-    *   **Negative Input:** "No Match." $ightarrow$ Output 0 (Silence).
+    *   **Positive Input:** "Signal Found!" $ightarrow$ Pass it through.
+    *   **Negative Input:** "No Match." $ightarrow$ Output 0 (Silence).
 *   **Benefit:** Efficient, sparse (many zeros), and solves the "Vanishing Gradient" problem found in older functions.
 
 ### 3.3. MaxPooling2D (The Compressor)
@@ -240,6 +240,39 @@ To afford a deeper brain (more layers), we often need to sacrifice resolution to
 *   **128x128:** 16,384 pixels per channel. 4x smaller!
 *   **The Logic:** Most trash items (a bottle, a shoe) are recognizable even at lower resolutions. By shrinking the image, we free up massive amounts of memory, which we then "spend" on adding 200+ more filters to make the model smarter.
 *   **Rule of Thumb:** It is usually better to have a **Smart Brain looking at a Small Image** than a **Dumb Brain looking at a Huge Image**.
+
+---
+
+## 9. Combatting Overfitting: Regularization & Callbacks
+
+As we build deeper models, they become increasingly prone to **Overfitting**. We use two professional categories of tools to control this: **Mathematical Penalties (Regularization)** and **Training Supervisors (Callbacks)**.
+
+### 9.1. Regularization (L2 / Weight Decay)
+
+*   **What is it?** A mathematical "fine" added to the loss function based on the size of the weights ($W$).
+*   **The Goal:** To prevent any single weight from becoming too large. Large weights usually mean the model is focusing too much on a specific pixel or feature (memorizing).
+*   **How it works (The Math):**
+    *   New Loss = Standard Loss + $\lambda \times \sum(W^2)$
+    *   The $\lambda$ (Lambda) is the "strength" of the penalty (e.g., `0.001`).
+*   **The Analogy:** Imagine a chef who uses *way* too much salt. L2 regularization is like a supervisor who charges the chef \$1 for every gram of salt they use. The chef is forced to use salt sparingly and balance the flavor with other ingredients.
+*   **Result:** The model is forced to distribute the learning across many weights, creating a more "balanced" and general understanding of the image.
+
+### 9.2. Callbacks (The Automated Supervisors)
+
+Callbacks are functions that run automatically at the end of every epoch. They "watch" the training and take action if things go wrong.
+
+#### 1. EarlyStopping
+*   **The Concept:** "Stop studying if you aren't getting any smarter."
+*   **Why use it?** After a certain point, more training doesn't help—it actually hurts by causing overfitting.
+*   **Parameters:**
+    *   `monitor='val_loss'`: Watch the Quiz Pile's error.
+    *   `patience=15`: Wait for 15 epochs. if the score doesn't improve, pull the plug.
+    *   `restore_best_weights=True`: **CRITICAL.** If the model stops at Epoch 60, but the best version was at Epoch 45, this automatically rolls the model back to the state it was in at Epoch 45.
+
+#### 2. TensorBoard
+*   **The Concept:** A flight-recorder for your training.
+*   **How it works:** It saves the accuracy and loss numbers into a log file on your hard drive.
+*   **Benefit:** Instead of reading a wall of text in Jupyter, you can open a separate dashboard with smooth, interactive graphs to compare different runs (Run 1 vs Run 5).
 
 ---
 
