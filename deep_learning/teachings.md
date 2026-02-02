@@ -63,12 +63,23 @@ A CNN is a stack of layers, each transforming the data from pixels into abstract
     2.  **Invariance:** Makes the model care about *what* is there, not exactly *where* it is (pixel-perfect precision is unnecessary).
 *   **The Paradox of Parameters:** Adding more Convolutional/Pooling layers can actually *decrease* the total number of parameters. This is because additional pooling reduces the size of the data before it hits the massive "Flatten" layer, saving millions of weights in the final Dense layers.
 
-### 3.4. Activation Function: ELU (Exponential Linear Unit)
-*   **The Problem with ReLU:** ReLU outputs exactly 0 for any negative input. If a neuron's weights get pushed into a state where it only receives negative inputs, it "dies" and stops learning (Dying ReLU problem).
-*   **The ELU Solution:** For negative inputs, ELU produces a small, smooth negative curve instead of a hard zero.
-*   **Benefits:**
-    1.  **Gradient Flow:** It keeps neurons "alive" by allowing gradients to flow even for negative values.
-    2.  **Zero-Centered:** ELU outputs have a mean closer to zero, which helps the model converge faster and more stably.
+### 3.5. Activation Functions: Sigmoid vs. ReLU vs. ELU
+Choosing the right activation function for hidden layers is critical for gradient flow.
+
+1.  **Sigmoid:** Squashes values to [0, 1].
+    *   **The Problem:** Vanishing Gradient. For very large or small inputs, the slope is nearly zero. In deep networks, these tiny gradients multiply, causing the early layers to stop learning.
+    *   **Usage:** Only for the output layer in **binary** classification.
+2.  **ReLU (Rectified Linear Unit):** $f(x) = max(0, x)$.
+    *   **The Benefit:** Constant gradient (1) for all positive values, solving the vanishing gradient problem. Extremely fast.
+    *   **The Risk:** "Dying ReLU." Neurons that get stuck in the negative range output 0 and never recover.
+3.  **ELU (Exponential Linear Unit):**
+    *   **The Benefit:** Smooth curve for negative values. It keeps neurons "alive" and pushes the mean activation closer to zero, leading to faster convergence.
+
+### 3.6. Output Layer: Softmax vs. Sigmoid
+Since Sorti is a **Multi-Class** project (8+ types of trash), the output layer logic is specific.
+
+*   **Softmax (Our Choice):** Turns the final scores into a probability distribution that **sums to 1.0**. Use this when an object can only belong to *one* category (e.g., an image is either 100% Glass or 100% Metal).
+*   **Sigmoid (The Alternative):** Each output neuron acts independently (0 to 1). Use this for **Multi-Label** classification (e.g., an image contains *both* a bottle and a piece of paper). For Sorti, Sigmoid would be confusing because it wouldn't force the model to pick the "best" single category.
 
 ---
 
@@ -346,6 +357,19 @@ In your Sorti project, we use only one big Dense layer at the end.
     *   Neuron 8 = Shoes Score.
     *   If you used `Dense(100)`, you would have 100 scores and no idea which one belonged to "Shoes".
 *   **The Loss Function:** The loss function (`SparseCategoricalCrossentropy`) compares this list of 9 scores against the single "True Answer" (e.g., Index 8). It needs the shapes to match exactly to calculate the grade.
+
+### 11.4. The "Logits" Trick (Why no activation on the last layer?)
+You will notice our code says:
+`tf.keras.layers.Dense(num_classes)` (No activation)
+`loss = SparseCategoricalCrossentropy(from_logits=True)`
+
+*   **What are Logits?** Logits are the raw, unnormalized mathematical scores the model spits out (e.g., `[-0.5, 2.1, 15.3]`).
+*   **The Confusion:** We *want* Softmax probabilities (e.g., `[0%, 1%, 99%]`). Why don't we put `activation='softmax'` on the last layer?
+*   **The Reason (Numerical Stability):**
+    *   If we use `activation='softmax'`, the model converts raw scores to tiny decimals (0.0000001).
+    *   The Loss function then tries to take the Logarithm of that tiny decimal. Computers handle this poorly, leading to rounding errors or `NaN` (Not a Number) crashes.
+    *   **The Fix:** By saying `from_logits=True`, we tell TensorFlow: "Here are the raw numbers. Please calculate the Softmax AND the Logarithm in one combined, mathematically safe step."
+*   ** Equivalence:** `from_logits=True` **IS** Softmax logic. It is **NOT** Sigmoid.
 
 ---
 
