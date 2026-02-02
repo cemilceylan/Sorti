@@ -254,7 +254,7 @@ As we build deeper models, they become increasingly prone to **Overfitting**. We
 *   **How it works (The Math):**
     *   New Loss = Standard Loss + $\lambda \times \sum(W^2)$
     *   The $\lambda$ (Lambda) is the "strength" of the penalty (e.g., `0.001`).
-*   **The Analogy:** Imagine a chef who uses *way* too much salt. L2 regularization is like a supervisor who charges the chef \$1 for every gram of salt they use. The chef is forced to use salt sparingly and balance the flavor with other ingredients.
+*   **The Analogy:** Imagine a chef who uses *way* too much salt. L2 regularization is like a supervisor who charges the chef $1 for every gram of salt they use. The chef is forced to use salt sparingly and balance the flavor with other ingredients.
 *   **Result:** The model is forced to distribute the learning across many weights, creating a more "balanced" and general understanding of the image.
 
 ### 9.2. Callbacks (The Automated Supervisors)
@@ -276,30 +276,42 @@ Callbacks are functions that run automatically at the end of every epoch. They "
 
 ---
 
-## 10. Deployment & Optimization Strategies
+## 10. Summary of the "Improved Model" (Run 5)
 
-### 10.1. Peak Performance vs. Final State
-In Experiment 4, we observed that the model peaked at **87.4%** (Epoch 62) but finished at **85.0%** (Epoch 100).
-*   **Late-Stage Overfitting:** After the model has learned all the general features, it spends the remaining epochs trying to "memorize" the noise or rare edge cases in the training data. This causes the validation accuracy to drift downward.
-*   **The Default Behavior:** Without specific instructions, TensorFlow only keeps the weights from the **very last epoch**. 
-*   **Best Practice:** In a project report, we cite the **Peak Validation Accuracy** to demonstrate the maximum capacity of our architecture, but we acknowledge that the final deployed model might be slightly "overcooked."
+In Run 5, we combined every tool in our arsenal:
+1.  **Data Augmentation:** Prevents the model from seeing the same image twice.
+2.  **Batch Normalization:** Stabilizes the deep layers.
+3.  **Dropout:** Stops the final "brain" layer from over-memorizing.
+4.  **L2 Regularization:** Keeps the weights small and general.
+5.  **EarlyStopping:** Saves us time and ensures we keep the best version of the weights.
 
-### 10.2. Professional Tools: Callbacks
-To avoid losing the "best" version of a model during long runs, we use **Callbacks** inside the `model.fit()` function.
+---
 
-#### 1. ModelCheckpoint
-*   **Mechanism:** It monitors a metric (like `val_accuracy`) after every epoch.
-*   **Action:** It only saves the model to a file if the current accuracy is better than the previous record.
-*   **Result:** You always end up with the "Champion" version of the model, regardless of how many epochs you set.
+## 11. The Dense Layer Paradox (One vs. Many)
 
-#### 2. EarlyStopping
-*   **Mechanism:** It monitors validation loss. If the loss fails to improve for a set number of epochs (called "patience"), it kills the training process.
-*   **Action:** "Stop studying if you're not getting any smarter."
-*   **Result:** Prevents wasting time/compute and avoids late-stage overfitting.
+In deep learning, you will see models with dozens of layers, but the type of layer matters.
 
-### 10.3. Saving and Loading
-*   **Saving:** `model.save('model_name.keras')` captures the entire "brain": the layers (architecture), the learned patterns (weights), and the training progress (optimizer state).
-*   **Loading:** `tf.keras.models.load_model('model_name.keras')` allows you to use the model instantly for predictions or resume training on a new machine.
+### 11.1. Tabular Data (Why many Dense layers?)
+Your professor's lecture example used many Dense layers (`Dense` $ightarrow$ `Dropout` $ightarrow$ `Dense` $ightarrow$ ...).
+*   **The Reason:** The dataset (Higgs) consists of 30 simple numbers (tabular data). These numbers have no spatial relationship. The model must create "depth" by stacking many layers of neurons to find complex mathematical relationships between those 30 numbers.
+
+### 11.2. Image Data (Why only one Dense layer?)
+In your Sorti project, we use only one big Dense layer at the end.
+*   **The Reason:** We have **Convolutional Layers** (Conv2D). 
+    *   The Conv layers are the "thinking" part of the model. They do all the heavy lifting of understanding the image (edges, shapes, textures).
+    *   By the time the data reaches the `Flatten()` layer, the hard work is done. The model already "knows" there is a shoe or a bottle.
+*   **The Danger of Multiple Dense Layers in CNNs:**
+    1.  **Parameter Explosion:** Dense layers are mathematically "heavy". One layer of 512 neurons can have millions of parameters. Stacking three of them would create a model with 20+ million parameters.
+    2.  **Instant Overfitting:** Unless you have millions of images, a 20-million-parameter model will simply memorize your dataset in 2 epochs.
+    3.  **Redundancy:** Since the Conv layers already extracted the high-level features, extra Dense layers often find nothing new to learn.
+
+### 11.3. The Output Layer Logic
+*   **Why `Dense(num_classes)`?** This creates the **Scoreboard**.
+    *   If you have 9 trash types, you need 9 output slots.
+    *   Neuron 0 = Battery Score.
+    *   Neuron 8 = Shoes Score.
+    *   If you used `Dense(100)`, you would have 100 scores and no idea which one belonged to "Shoes".
+*   **The Loss Function:** The loss function (`SparseCategoricalCrossentropy`) compares this list of 9 scores against the single "True Answer" (e.g., Index 8). It needs the shapes to match exactly to calculate the grade.
 
 ---
 
