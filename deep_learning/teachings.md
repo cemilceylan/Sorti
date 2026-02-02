@@ -63,6 +63,13 @@ A CNN is a stack of layers, each transforming the data from pixels into abstract
     2.  **Invariance:** Makes the model care about *what* is there, not exactly *where* it is (pixel-perfect precision is unnecessary).
 *   **The Paradox of Parameters:** Adding more Convolutional/Pooling layers can actually *decrease* the total number of parameters. This is because additional pooling reduces the size of the data before it hits the massive "Flatten" layer, saving millions of weights in the final Dense layers.
 
+### 3.4. Activation Function: ELU (Exponential Linear Unit)
+*   **The Problem with ReLU:** ReLU outputs exactly 0 for any negative input. If a neuron's weights get pushed into a state where it only receives negative inputs, it "dies" and stops learning (Dying ReLU problem).
+*   **The ELU Solution:** For negative inputs, ELU produces a small, smooth negative curve instead of a hard zero.
+*   **Benefits:**
+    1.  **Gradient Flow:** It keeps neurons "alive" by allowing gradients to flow even for negative values.
+    2.  **Zero-Centered:** ELU outputs have a mean closer to zero, which helps the model converge faster and more stably.
+
 ---
 
 ## 4. Training & Optimization
@@ -88,6 +95,12 @@ $$Param \# = (Input\_Neurons \times Layer\_Neurons) + Layer\_Neurons\_(Bias)$$
 
 **3. Pooling & Flatten:**
 *   **0 Parameters.** These are fixed mathematical operations (finding max, reshaping). There is nothing to learn.
+
+### 4.3. Weight Initialization: He Normal
+*   **The Concept:** Initializing weights with a specific random distribution to ensure the signal doesn't vanish or explode as it passes through deep layers.
+*   **Why not use the Default (Glorot/Xavier)?** Default initialization is mathematically optimized for symmetric activations like Sigmoid or Tanh.
+*   **Why "He Normal"?** It is specifically designed for non-symmetric, "rectified" activations like ReLU and ELU.
+*   **The Benefit:** It keeps the variance of the signal constant across layers. This leads to much more stable training in deep CNNs and prevents the model from getting stuck in the first few epochs.
 
 ---
 
@@ -273,6 +286,27 @@ Callbacks are functions that run automatically at the end of every epoch. They "
 *   **The Concept:** A flight-recorder for your training.
 *   **How it works:** It saves the accuracy and loss numbers into a log file on your hard drive.
 *   **Benefit:** Instead of reading a wall of text in Jupyter, you can open a separate dashboard with smooth, interactive graphs to compare different runs (Run 1 vs Run 5).
+
+### 9.3. Monitoring "Pure Error" vs. "Total Loss" (Why it matters with L2)
+
+When we use **L2 Regularization**, the meaning of "Loss" changes, which can trick our EarlyStopping supervisor.
+
+#### 1. The Components of Loss
+*   **Pure Error (Prediction Error):** Did the model guess "Glass" when it was actually "Metal"? This is what we care about.
+*   **Complexity Fine (L2 Penalty):** Is the model using huge weights? This is the "tax" we charge the model to prevent overfitting.
+*   **Total Loss = Pure Error + Complexity Fine.**
+
+#### 2. The Problem with `monitor='val_loss'`
+As training progresses, the model might get really good at reducing the **Complexity Fine** (making weights smaller) even if its **Pure Error** (prediction accuracy) stops improving or gets slightly worse.
+*   **The Illusion:** The `val_loss` (Total) keeps going down because the "Fine" is dropping.
+*   **The Reality:** The model isn't getting smarter at classifying trash anymore.
+*   **The Risk:** EarlyStopping keeps the training going too long because it thinks the model is still improving, leading to wasted time or late-stage overfitting.
+
+#### 3. The Solution: `monitor='val_scc_metric'`
+We tell EarlyStopping to ignore the "Fine" and only look at the **Pure Error** (Sparse Categorical Crossentropy).
+*   **Analogy:** Imagine a student who gets graded on "Correct Answers" + "Neat Handwriting."
+*   **Bad Monitoring:** The student stops studying but spends hours making their handwriting perfect. Their "Total Score" goes up, but they aren't learning.
+*   **Good Monitoring:** We only look at the "Correct Answers" score. If that stops going up, we stop the study session, regardless of how neat the handwriting is.
 
 ---
 

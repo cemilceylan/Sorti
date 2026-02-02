@@ -39,9 +39,15 @@
 ### 5. Evaluation & Improvement (✅ Done)
 *   **Experiment 2:** Data Augmentation (Flip/Rotate/Zoom). Result: 71% Val Acc. (Reduced Overfitting).
 *   **Experiment 3:** Dropout (Regularization). Result: 76% Val Acc. (Broke ceiling).
-*   **Concept:** Overfitting vs. Underfitting, Regularization, Augmentation.
+*   **Run 5:** Regularization Focus (L2 + BatchNormalization + Dropout).
+*   **Run 6 (Proposed):** The High-Res Experiment.
+    *   **Resolution:** Increase to 256x256.
+    *   **Architecture:** 5-Block CNN (32 to 512 filters).
+    *   **Activation:** ELU (to solve Dying ReLU).
+    *   **Initialization:** He Normal (optimized for ELU).
+    *   **Goal:** Determine if increased spatial resolution helps distinguish Metal from Plastic.
 
-### 6. Advanced Techniques (✅ Done - The "Innovation")
+### Milestone 6: Final Evaluation & Defense Prep
 *   **Experiment 4:** Deep Custom CNN (5 Blocks, 512 Filters) + Batch Normalization + 128x128 Resolution.
 *   **Result:** **87.43% Val Acc.**
 *   **Concept:** Hierarchy of Features, Batch Normalization, Resolution Trade-offs, Deep Learning Architectures.
