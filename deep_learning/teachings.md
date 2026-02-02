@@ -184,5 +184,63 @@ In a final report, we compare **Best Performance**, not a fixed point in time.
 
 ---
 
-## 8. Next Steps
+## 8. Advanced Architecture (The "Deep Custom Model")
+
+When a standard 3-Block CNN hits a "Glass Ceiling" (e.g., stuck at ~70% accuracy despite Augmentation and Dropout), it means the model is simply not smart enough to distinguish complex classes. We need to upgrade the brain.
+
+### 8.1. Going Deeper (More Blocks)
+*   **Concept:** Adding more Convolutional Blocks (e.g., 3 $ightarrow$ 5).
+*   **Why?** Neural Networks learn a **Hierarchy of Features**:
+    *   **Layers 1-2:** Detect edges, lines, and colors.
+    *   **Layers 3-4:** Detect shapes, corners, and textures (e.g., "shiny surface").
+    *   **Layers 5-6:** Detect complex objects (e.g., "bottle cap", "shoe lace", "logo text").
+*   **The Upgrade:** By adding 4th and 5th blocks with 256 and 512 filters, we give the model the ability to "see" these high-level concepts essential for distinguishing trash types.
+
+### 8.2. Batch Normalization (The Stabilizer)
+As networks get deeper, they suffer from **Internal Covariate Shift**.
+*   **The Problem:** Layer 5 is trying to learn, but the input signal from Layer 4 keeps shifting around because Layer 4 is also changing. It's like trying to shoot a moving target.
+*   **The Solution:** `BatchNormalization()`.
+*   **Mechanism:** After every layer, the model re-centers the data (Mean=0, Variance=1).
+*   **Benefit:**
+    1.  **Speed:** The network trains 10x faster because layers don't have to constantly re-adapt to shifting inputs.
+    2.  **Stability:** It allows us to train very deep networks (like ResNet) without getting stuck.
+    3.  **Regularization:** It adds a tiny bit of noise, which helps prevent overfitting.
+
+### 8.3. The Resolution Trade-off (128x128 vs 256x256)
+To afford a deeper brain (more layers), we often need to sacrifice resolution to save memory (RAM).
+*   **256x256:** 65,536 pixels per channel. Great for tiny details, but computationally heavy.
+*   **128x128:** 16,384 pixels per channel. 4x smaller!
+*   **The Logic:** Most trash items (a bottle, a shoe) are recognizable even at lower resolutions. By shrinking the image, we free up massive amounts of memory, which we then "spend" on adding 200+ more filters to make the model smarter.
+*   **Rule of Thumb:** It is usually better to have a **Smart Brain looking at a Small Image** than a **Dumb Brain looking at a Huge Image**.
+
+---
+
+## 10. Deployment & Optimization Strategies
+
+### 10.1. Peak Performance vs. Final State
+In Experiment 4, we observed that the model peaked at **87.4%** (Epoch 62) but finished at **85.0%** (Epoch 100).
+*   **Late-Stage Overfitting:** After the model has learned all the general features, it spends the remaining epochs trying to "memorize" the noise or rare edge cases in the training data. This causes the validation accuracy to drift downward.
+*   **The Default Behavior:** Without specific instructions, TensorFlow only keeps the weights from the **very last epoch**. 
+*   **Best Practice:** In a project report, we cite the **Peak Validation Accuracy** to demonstrate the maximum capacity of our architecture, but we acknowledge that the final deployed model might be slightly "overcooked."
+
+### 10.2. Professional Tools: Callbacks
+To avoid losing the "best" version of a model during long runs, we use **Callbacks** inside the `model.fit()` function.
+
+#### 1. ModelCheckpoint
+*   **Mechanism:** It monitors a metric (like `val_accuracy`) after every epoch.
+*   **Action:** It only saves the model to a file if the current accuracy is better than the previous record.
+*   **Result:** You always end up with the "Champion" version of the model, regardless of how many epochs you set.
+
+#### 2. EarlyStopping
+*   **Mechanism:** It monitors validation loss. If the loss fails to improve for a set number of epochs (called "patience"), it kills the training process.
+*   **Action:** "Stop studying if you're not getting any smarter."
+*   **Result:** Prevents wasting time/compute and avoids late-stage overfitting.
+
+### 10.3. Saving and Loading
+*   **Saving:** `model.save('model_name.keras')` captures the entire "brain": the layers (architecture), the learned patterns (weights), and the training progress (optimizer state).
+*   **Loading:** `tf.keras.models.load_model('model_name.keras')` allows you to use the model instantly for predictions or resume training on a new machine.
+
+---
+
+## 11. Next Steps
 *   **Baseline First:** Do not start with complex techniques (like Data Augmentation). Build a simple "Naive" model first. Watch it fail (Overfit). Then apply the fix. This proves the value of your solution.

@@ -19,40 +19,33 @@
 
 ## 📅 Milestones
 
-### 1. Data Cleaning & Preparation (Done)
+### 1. Data Cleaning & Preparation (✅ Done)
 *   **Task:** Merge split datasets (`cardboard` + `cardboard2` -> `cardboard`) to create unified classes.
 *   **Concept:** Labeled Data, Training vs. Test splits, Image structures (Pixels, Channels).
 
-### 2. Data Loading & Visualization (In Progress)
-*   **Status:** ✅ Environment Configured (Python 3.10).
-*   **Completed:** Single Image Loading (Manual `tf.io` pipeline) & Visualization.
-*   **Next Task:** Scale up using `tf.keras.utils.image_dataset_from_directory`.
+### 2. Data Loading & Visualization (✅ Done)
+*   **Completed:** Scaled up using `tf.keras.utils.image_dataset_from_directory`.
 *   **Concept:** Tensors, Batch Size, Image Resizing (standardizing input).
 
-### 3. Building the First CNN (The "Hello World")
-*   **Task:** Create a simple Convolutional Neural Network.
-*   **Concept:**
-    *   **Convolution:** Feature extraction (Edges, Textures).
-    *   **Pooling:** Reducing complexity (Downsampling).
-    *   **Flatten & Dense:** Decision making.
-    *   **Activation Functions:** ReLu (Linearity breaker), Softmax (Probabilities).
+### 3. Building the First CNN (✅ Done)
+*   **Completed:** Built a "Naive" 3-Block CNN (16-32-64 filters).
+*   **Result:** 97% Training Acc, but severe Overfitting (69% Val Acc).
+*   **Concept:** Convolution, Pooling, Flatten, Dense, ReLu.
 
-### 4. Training the Model
-*   **Task:** `model.fit()`.
-*   **Concept:**
-    *   **Loss Function:** Cross-Entropy (measuring error).
-    *   **Optimizer:** Adam/SGD (adjusting weights).
-    *   **Backpropagation:** How the network learns from mistakes.
-    *   **Epochs:** Iterations over the dataset.
+### 4. Training the Model (✅ Done)
+*   **Completed:** Trained baseline model for 10 epochs.
+*   **Concept:** Loss Function (Cross-Entropy), Optimizer (Adam), Backpropagation.
 
-### 5. Evaluation & Improvement
-*   **Task:** Analyze Accuracy graphs.
-*   **Concept:** Overfitting vs. Underfitting (Bias/Variance trade-off).
+### 5. Evaluation & Improvement (✅ Done)
+*   **Experiment 2:** Data Augmentation (Flip/Rotate/Zoom). Result: 71% Val Acc. (Reduced Overfitting).
+*   **Experiment 3:** Dropout (Regularization). Result: 76% Val Acc. (Broke ceiling).
+*   **Concept:** Overfitting vs. Underfitting, Regularization, Augmentation.
 
-### 6. Advanced Techniques (The "Innovation")
-*   **Task:** Data Augmentation & Transfer Learning (MobileNet/VGG).
-*   **Concept:** Using pre-trained "knowledge", regularization (Dropout).
+### 6. Advanced Techniques (✅ Done - The "Innovation")
+*   **Experiment 4:** Deep Custom CNN (5 Blocks, 512 Filters) + Batch Normalization + 128x128 Resolution.
+*   **Result:** **87.43% Val Acc.**
+*   **Concept:** Hierarchy of Features, Batch Normalization, Resolution Trade-offs, Deep Learning Architectures.
 
-### 7. Final Polish for "Beleg" & Defense
-*   **Task:** Generate confusion matrix, save model, explain results.
+### 7. Final Polish for "Beleg" & Defense (Next Up)
+*   **Task:** Save the model (`.keras`), generate confusion matrix, analyze specific failures, and write the report.
 *   **Concept:** Precision, Recall, F1-Score, Model Efficiency.

@@ -61,7 +61,7 @@ This document tracks the experiments, configurations, and results of our model t
 
 ### Results (Peak at Epoch 30)
 *   **Training Accuracy:** 88.4%
-*   **Validation Accuracy:** **76.25%** (New Record!)
+*   **Validation Accuracy:** **76.25%**
 *   **Validation Loss:** 1.02
 
 ### Full 40-Epoch Data
@@ -77,9 +77,33 @@ This document tracks the experiments, configurations, and results of our model t
 | 35 | 89.82% | 0.3011 | 74.84% | 1.1770 | Overfitting begins |
 | 40 | 91.24% | 0.2690 | 73.20% | 1.2946 | Loss increasing |
 
-### Analysis
-1.  **Ceiling Broken:** We successfully pushed validation accuracy from **~71%** to **~76%**.
-2.  **The "Sweet Spot":** The model performed best between Epoch 25 and 30. Training beyond Epoch 35 was counter-productive (Overfitting returned).
-3.  **Limit Reached:** The 3-Block architecture has likely given everything it has. To reach >80%, we need a deeper network to capture more complex features.
+---
 
-*   **Action:** Proceed to **Experiment 4: The "Big Custom Model"** (Deeper & Wider + Batch Normalization).
+## Experiment 4: The "Deep Custom Model" (Final)
+*   **Date:** Feb 1, 2026
+*   **Epochs:** 100
+*   **Goal:** Break the 80% accuracy barrier by significantly increasing model capacity (Intelligence) while maintaining stability.
+*   **Raw Data:** See `run_4.md` for the complete 100-epoch table.
+
+### Strategic Decisions (The "Why")
+1.  **Architecture Upgrade (3 Blocks $\rightarrow$ 5 Blocks):**
+    *   *Problem:* Exp 3 peaked at 76%. The 3-Block model simply couldn't distinguish complex features (e.g., crushed can vs. crumpled paper).
+    *   *Solution:* We added 2 more Convolutional blocks, ending with **512 filters**. This allows the model to learn high-level abstractions essential for fine-grained classification.
+2.  **Batch Normalization:**
+    *   *Problem:* Deep networks are notoriously hard to train (gradients vanish/explode).
+    *   *Solution:* Added `BatchNormalization` after every Conv layer. This stabilized the learning process, allowing us to train for 100 epochs without the loss exploding (unlike Exp 1).
+3.  **Resolution Trade-off (256px $\rightarrow$ 128px):**
+    *   *Problem:* A 5-Block model with 256x256 images would require massive RAM and parameters.
+    *   *Solution:* Reduced input to **128x128**. We sacrificed pixel density to gain **Network Depth**. This proved to be the correct trade-off: a smarter brain looking at a smaller image beats a dumb brain looking at a large image.
+
+### Results (Peak at Epoch 62)
+*   **Training Accuracy:** 95.3%
+*   **Validation Accuracy:** **87.43%** (New Record)
+*   **Validation Loss:** 0.54 (Lowest ever)
+
+### Comparative Analysis
+*   **vs. Run 1 (Baseline):** We improved accuracy by **+18%** (69% $\rightarrow$ 87%) and reduced loss by **4x** (2.29 $\rightarrow$ 0.54).
+*   **vs. Run 3 (Dropout):** Adding depth and Batch Norm gained us **+11%** accuracy over the Dropout-only model.
+*   **Conclusion:** The combination of **Depth + Batch Norm + Dropout + Augmentation** is the winning formula for this dataset.
+
+*   **Status:** **PROJECT COMPLETE. MODEL SAVED.**
