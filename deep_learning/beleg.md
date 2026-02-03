@@ -2,7 +2,7 @@
 
 **Kurs:** ProgData WS25 (Intro to Deep Learning / Computer Vision)  
 **Autor:** [Dein Name]  
-**Datum:** 2. Februar 2026  
+**Datum:** 3. Februar 2026  
 
 ---
 
@@ -12,61 +12,106 @@ In der modernen Kreislaufwirtschaft ist die effiziente Trennung von Abfällen ei
 ## 2. Stand der Technik
 Traditionelle Computer-Vision-Ansätze basierten oft auf manuell entwickelten Filtern für Kanten oder Farben. Moderne Deep-Learning-Verfahren, insbesondere Convolutional Neural Networks (CNNs), automatisieren diesen Prozess. Durch die Verwendung von Faltungsschichten (Convolutional Layers) lernt das System eine Hierarchie von Merkmalen: von einfachen Kanten in den ersten Schichten bis hin zu komplexen Formen (wie dem Flaschenhals oder der Textur von Karton) in tieferen Schichten.
 
-## 3. Methodik: Der experimentelle Ansatz
-Um die beste Architektur zu finden, wurde ein iterativer 3-Stufen-Plan (3-Act Structure) verfolgt:
-*   **Phase 1 (Baseline):** Ein einfaches Modell zur Identifikation des Overfitting-Problems.
-*   **Phase 2 (Regularisierung):** Einsatz von Data Augmentation und Dropout zur Verbesserung der Generalisierung.
-*   **Phase 3 (Champion):** Skalierung der Netzwerktiefe und Stabilisierung durch Batch Normalization, um die maximale Genauigkeit zu erreichen.
+## 3. Methodik: Der 5-Akter (The Experimental Arc)
+Um die optimale Architektur zu finden, wurde kein starrer Plan verfolgt, sondern eine **evolutionäre Strategie in 5 Akten**. Jeder "Run" basierte auf der Fehleranalyse des Vorgängers:
+
+1.  **Akt 1 (Baseline):** Ein naives Modell, um zu sehen, wie schnell das Netz lernt (und overfittet).
+2.  **Akt 2 (Regularisierung):** Einfügen von "Bremsen" (Dropout, Augmentation), um das Auswendiglernen zu stoppen.
+3.  **Akt 3 (Scale):** Massive Erhöhung der neuronalen Kapazität (Tiefe), um komplexe Merkmale zu erfassen.
+4.  **Akt 4 (Optimization):** Mathematische Feinjustierung (Aktivierungsfunktionen, Initialisierung) für maximale Leistung.
+5.  **Akt 5 (Stability):** Fokus auf Zuverlässigkeit und Fehlerbalance statt reiner Spitzenleistung.
 
 ## 4. Implementierung & Systemaufbau
-Das System wurde in **Python** unter Verwendung von **TensorFlow/Keras** implementiert.
-*   **Datensatz:** 128x128 Pixel Auflösung, 9 Klassen.
-*   **Architektur:** Ein 5-Block-CNN. Jeder Block besteht aus einer `Conv2D`-Schicht mit integrierter **L2-Kernel-Regularisierung** (zur Vermeidung von Gewichts-Explosionen), gefolgt von **BatchNormalization** zur Stabilisierung des Gradientenflusses, `ReLU`-Aktivierung und `MaxPooling`.
-*   **Regularisierung:** Kombination aus räumlicher Regularisierung (`RandomFlip`, `RandomRotation`, `RandomZoom`), struktureller Regularisierung (`Dropout(0.5)`) und Gewichtungs-Regularisierung (**L2-Penalty**).
-*   **Optimierung:** Verwendung des Adam-Optimierers mit einer lernratenabhängigen Reduzierung (`ReduceLROnPlateau`), um das globale Minimum der Loss-Function präzise zu erreichen.
+Das System wurde in **Python** unter Verwendung von **TensorFlow/Keras** auf einer **A100 GPU (Google Colab)** trainiert.
 
-## 5. Durchführung & Ergebnisse
-Die Experimente wurden in fünf Phasen (Runs) unterteilt, um die Auswirkungen spezifischer Optimierungen zu isolieren.
+### 4.1 Datenbasis
+*   **Input:** RGB-Bilder, resized auf 128x128 (Run 1-4) und 256x256 (Run 5).
+*   **Klassen:** 9 Kategorien (Battery, Biological, Cardboard, Clothes, Glass, Metal, Paper, Plastic, Shoes).
 
-*   **Run 1 (Baseline):** Das Modell erreichte schnell ~99% Trainingsgenauigkeit, stagnierte aber bei **~73% Validierungsgenauigkeit**.
-    *   *Diagnose:* Massives Overfitting ("Arroganz"). Das Modell lernte Pixelmuster auswendig, keine Merkmale.
-*   **Run 2 (Regularisierung):** Mit Data Augmentation und Dropout sank die Genauigkeit auf **~68%**, aber der Spalt zwischen Training und Validierung schloss sich fast vollständig.
-    *   *Diagnose:* Das "Ehrliche" Modell. Die geringe Genauigkeit zeigte das Kapazitätslimit der 3-Block-Architektur auf.
-*   **Run 3 (Scale):** Die Skalierung auf 5 Blöcke (512 Filter) brachte den Durchbruch auf **~87% Peak Accuracy**, jedoch mit instabilen Loss-Kurven ("Zittern").
-    *   *Diagnose:* Kapazitätsproblem gelöst, aber Stabilitätsprobleme am Ende des Trainings.
-*   **Run 4 (Optimization):** Der Wechsel zu **ELU-Aktivierung** und **He-Normal-Initialisierung** stabilisierte das Training signifikant und erzielte solide **~85%**.
-    *   *Diagnose:* "Scientific Climax". Mathematische Optimierung statt purer Masse.
-*   **Run 5 (Stability):** Erhöhung der Auflösung auf 180x180 und Einsatz von `ReduceLROnPlateau`.
-    *   *Ergebnis:* Robusteste Generalisierung mit **81% Test-Genauigkeit** über alle Klassen.
+### 4.2 Die finale Architektur (Run 4/5 Basis)
+*   **Backbone:** Ein tiefes **5-Block-CNN**. Jeder Block folgt dem Muster:
+    *   `Conv2D` (Filter steigend: 32 -> 512)
+    *   `BatchNormalization` (für stabile Gradienten)
+    *   `ELU`-Aktivierung (Run 4 & 5) oder `ReLU` (Run 3)
+    *   `MaxPooling2D`
+*   **Head:** `GlobalAveragePooling2D` (statt Flatten) zur extremen Parameter-Reduktion und Vermeidung von Overfitting im Klassifikator.
+*   **Regularisierung:**
+    *   **Data Augmentation:** RandomFlip, RandomRotation, RandomZoom.
+    *   **Dropout:** 50% der Verbindungen werden im Training gekappt.
+*   **Training:**
+    *   **Optimizer:** Adam.
+    *   **Callbacks:** `EarlyStopping` (Geduld) und `ReduceLROnPlateau` (Lernraten-Anpassung bei Stagnation).
 
-### 5.1 Fehleranalyse (Confusion Matrix)
-Die detaillierte Analyse der Testdaten offenbart die Evolution der Modell-Intelligenz:
-*   **Frühe Probleme (Run 1-3):** Massive Probleme bei **Metall** und **Schuhen** (Recall oft < 40%). Das Modell ignorierte diese Minderheitenklassen zugunsten von einfachen Klassen wie Kleidung.
-*   **Der Durchbruch (Run 5):** Run 5 ist das einzige Modell, das eine ausgeglichene Performance zeigt.
-    *   **Biological:** 97% Precision (nahezu perfekt).
-    *   **Battery:** 96% Precision.
-    *   **Schwachstelle:** Die Unterscheidung zwischen **Plastik** und **Metall** bleibt aufgrund ähnlicher Oberflächenreflexionen die größte Herausforderung.
+## 5. Durchführung & Ergebnisse (Die 5 Runs)
+
+### Run 1: Die "Arroganz" (Baseline)
+*   **Setup:** 3 Blöcke, keine Regularisierung.
+*   **Ergebnis:** 99% Training vs. 73% Validation Accuracy.
+*   **Lektion:** Das Modell hat die Bilder auswendig gelernt (Overfitting). Es ist "arrogant" und scheitert an neuen Daten.
+
+### Run 2: Die "Demut" (Regularisierung)
+*   **Setup:** 3 Blöcke + Augmentation + Dropout + GlobalAveragePooling.
+*   **Ergebnis:** Einbruch auf ~68% Accuracy, aber kein Overfitting mehr (Train ≈ Val).
+*   **Lektion:** Das Modell ist jetzt "ehrlich", aber zu "dumm" (Underfitting). Die 3-Block-Architektur hat nicht genug Kapazität für 9 komplexe Klassen.
+
+### Run 3: Die "Kraft" (Deep CNN)
+*   **Setup:** Upgrade auf **5 Blöcke** (bis 512 Filter) + BatchNormalization.
+*   **Ergebnis:** Sprung auf **~87% Peak Accuracy**.
+*   **Problem:** Extrem instabile Loss-Kurven ("Zittern"). Das Modell lernt schnell, ist aber volatil.
+
+### Run 4: Die "Wissenschaft" (Der Sprinter)
+*   **Setup:** 5 Blöcke + **ELU** Aktivierung + **He-Normal** Initialisierung + **128px Auflösung**.
+*   **Ergebnis:** Stabilste Konvergenz und **höchste Validierungs-Accuracy (85.2%)**.
+*   **Der Haken:** Die Confusion Matrix zeigte eine "Shadow Overfitting". Es ignorierte schwierige Klassen wie **Metall** (Recall 30%) und **Schuhe** (Recall 20%) fast komplett, um den Score zu maximieren.
+
+### Run 5: Die "Reife" (Der Marathonläufer)
+*   **Setup:** **256px Auflösung** + `ReduceLROnPlateau` (Lernrate dynamisch senken) + **ELU/He-Init**.
+*   **Ergebnis:** Etwas niedrigere Peak-Accuracy (~82%), aber **massive Verbesserung der Confusion Matrix**.
+*   **Durchbruch:** Der Recall für Metall stieg auf **78%**. Das Modell ist "fairer" und robuster, auch wenn der Score etwas tiefer ist.
 
 ## 6. Zusammenfassung & Fazit
-Das Projekt "Sorti" demonstriert erfolgreich den Weg vom "naiven" Skript zum robusten Deep-Learning-Modell.
-*   **Haupterkenntnis:** Kapazität (Tiefe) ist notwendig, aber ohne mathematische Stabilisierung (Batch Norm, He-Init) und dynamische Lernratenanpassung nicht kontrollierbar.
-*   **Finales Modell:** Run 4 stellt das "wissenschaftliche Optimum" dar (beste Validierungsmetriken), während Run 5 das "praxistauglichste" Modell ist (beste Test-Generalisierung).
+Das Projekt zeigt, dass "Accuracy" nicht alles ist.
+*   **Run 4** ist unser "akademischer Sieger" (höchste Zahl).
+*   **Run 5** ist unser "praktischer Sieger" (beste Fehlerverteilung und Zuverlässigkeit).
+Wir haben gelernt, dass Tiefe (Capacity) notwendig ist, aber erst durch mathematische Stabilisierung (Batch Norm, He-Init) und intelligente Trainingssteuerung (ReduceLROnPlateau) kontrollierbar wird.
 
-## 7. Gliederung der Verteidigung (Narrativer Bogen)
-**Leitmotiv:** "Vom Scheitern zum Verstehen - Eine Evolution in 5 Akten."
+---
 
-*   **Akt 1: Die Arroganz (Run 1)**
-    *   Problem: Overfitting.
-    *   Learning: Wir brauchen Regularisierung.
-*   **Akt 2: Die Schwäche (Run 2)**
-    *   Problem: Underfitting (68%).
-    *   Learning: Regularisierung wirkt, aber das Gehirn ist zu klein (3 Blöcke). Wir brauchen Kapazität.
-*   **Akt 3: Die rohe Kraft (Run 3)**
-    *   Problem: Instabilität trotz 87% Peak.
-    *   Learning: Tiefe Netzwerke sind schwer zu trainieren.
-*   **Akt 4: Die Wissenschaft (Run 4)**
-    *   Lösung: ELU + He Normal.
-    *   Ergebnis: Stabiles High-Performance Modell.
-*   **Akt 5: Die Reife (Run 5)**
-    *   Lösung: Höhere Auflösung & `ReduceLROnPlateau`.
-    *   Ergebnis: Echte Generalisierung (81% Test Accuracy) und Lösung des "Metall-Problems".
+## 7. Gliederung der Verteidigung (20 Min)
+
+**Titel:** "Sorti: Vom Pixel-Raten zum Verstehen - Eine KI-Evolution"
+
+### 7.1 Zeitplan & Folien
+
+**Einleitung (3 Min)**
+*   **Folie 1: Intro.** Projektziel & Relevanz (Mülltrennung ist schwer).
+*   **Folie 2: Die Herausforderung.** Visuelle Varianz (Zerknülltes Papier vs. flaches Papier).
+
+**Die Reise (12 Min - Der Kern)**
+*   **Folie 3: Akt 1 (Baseline).** Grafik: Riesiger Gap zwischen Train/Val. -> *Diagnose: Overfitting.*
+*   **Folie 4: Akt 2 (Regularisierung).** Grafik: Kurven treffen sich, aber tief. -> *Diagnose: Underfitting (zu wenig Gehirn).*
+*   **Folie 5: Akt 3 (Scale).** Architektur-Diagramm (5 Blöcke). -> *Lösung: Mehr Neuronen = Mehr Verständnis.*
+*   **Folie 6: Akt 4 (Optimization).** Run 4 Kurve (glatt). Erklärung: Warum ELU & He-Init besser sind als ReLU & Glorot. -> *Resultat: 85% Peak.*
+*   **Folie 7: Der Konflikt (Confusion Matrix).** Zeigen, dass Run 4 bei Metall versagt.
+*   **Folie 8: Akt 5 (Lösung).** Run 5 Confusion Matrix. -> *Resultat: Metall wird erkannt. Balance > Peak Score.*
+
+**Abschluss (5 Min)**
+*   **Folie 9: Live-Demo / Beispiele.** Zeigen von Klassifizierungen (Richtig vs. Falsch).
+*   **Folie 10: Fazit.** "Wir brauchen nicht nur mehr Daten, wir brauchen besseres Training."
+
+### 7.2 Kernbotschaften (Q&A Vorbereitung)
+*   **Warum ist Run 5 besser, wenn Run 4 mehr % hat?**
+    *   "Weil ein Müllroboter, der 100% Papier erkennt aber 0% Metall, nutzlos ist. Run 5 ist ausgeglichen."
+*   **Was bringt GlobalAveragePooling?**
+    *   "Es reduziert Millionen von Parametern auf wenige Hundert. Das verhindert Overfitting im letzten Schritt extrem effektiv."
+*   **Warum ELU statt ReLU?**
+    *   "ReLU tötet Neuronen bei negativen Werten (Dying ReLU). ELU lässt sie leicht negativ sein, was den Informationsfluss in tiefen Netzen am Leben erhält."
+
+---
+
+## 8. Literaturverzeichnis / Web-Quellen
+
+1.  **TensorFlow Core Team**, "Image classification Tutorial," *TensorFlow Core Documentation*. [Online]. Verfügbar: https://www.tensorflow.org/tutorials/images/classification.
+2.  **Gary Thung**, "TrashNet Dataset Repository," *GitHub*. [Online]. Verfügbar: https://github.com/garythung/trashnet.
+3.  **Jason Brownlee**, "A Gentle Introduction to the Rectified Linear Unit (ReLU)," *Machine Learning Mastery*. [Online]. Verfügbar: https://machinelearningmastery.com/rectified-linear-activation-function-for-deep-learning-neural-networks/.
+4.  **Keras Team**, "Keras Documentation: Layer Weight Initializers," *Keras.io*. [Online]. Verfügbar: https://keras.io/api/layers/initializers/.

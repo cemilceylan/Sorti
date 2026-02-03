@@ -187,18 +187,18 @@ We successfully traded "Memorization" for "Generalization". The model is robust 
 ### 4. Final Conclusion
 Run 3 is our current **Champion**. It has met the project goal of >85% accuracy. It demonstrates that a custom architecture, when properly regularized and stabilized with Batch Normalization, can rival professional pre-trained models.
 
-### 4. Next Step: Run 4 (The High-Res Specialist)
-**Objective:** Push for 90% by improving visual clarity.
-**Action:** "Seeing the Details"
-1.  **Resolution Upgrade:** Increase from 128x128 to **256x256** to capture material textures.
-2.  **Mathematical Optimization:** Switch to **ELU** activation and **He Normal** initialization to keep the deep layers more active and stable.
-3.  **Stability:** Maintain the 5-block architecture and GAP.
+### 4. Next Step: Run 4 (The Mathematical Optimization)
+**Objective:** Push for 90% by improving mathematical stability, not just pixel count.
+**Action:** "Better Brain, Same Eyes"
+1.  **Mathematical Optimization:** Switch to **ELU** activation and **He Normal** initialization to keep the deep layers more active and stable.
+2.  **Stability:** Maintain the 5-block architecture, GAP, and **128x128 resolution**.
 
 ---
 
 ## Run 4: The Mathematical Optimization (ELU + He Normal)
 **Configuration:**
 *   **Architecture:** 5-Block Deep CNN (Same as Run 3).
+*   **Resolution:** 128x128.
 *   **Changes:**
     *   **Activation:** Switched `ReLU` $\to$ **`ELU`** (Exponential Linear Unit) to handle negative values and prevent dead neurons.
     *   **Initialization:** Switched `GlorotUniform` $\to$ **`HeNormal`** to maintain variance in deep layers.
@@ -247,17 +247,18 @@ Run 3 is our current **Champion**. It has met the project goal of >85% accuracy.
 ### 4. Final Conclusion
 Run 4 is the **Definitive Champion**. By fixing the mathematics (Initialization & Activation) rather than just adding more layers, we squeezed the final 2-3% performance needed to safely clear the 85% bar. This is the model we will present.
 
-### 4. Next Step: Run 5 (The Stabilizer)
-**Objective:** Maintain high accuracy while eliminating the "jitter" in the final epochs.
+### 4. Next Step: Run 5 (The Stabilizer & High-Res)
+**Objective:** Maintain high accuracy while eliminating the "jitter" and improving feature recognition with high-res inputs.
 **Action:**
-1.  **Resolution Upgrade:** Increase to **180x180** (compromise between 128 and 256).
+1.  **Resolution Upgrade:** Increase to **256x256** (Maximum clarity).
 2.  **Callback Addition:** Add **`ReduceLROnPlateau`** (The "Gear Shifter"). This will automatically lower the learning rate when the validation loss stops improving, allowing the model to settle into the global minimum without bouncing out.
 
 ---
 
-## Run 5: High-Res + ReduceLROnPlateau (The Smooth Operator)
+## Run 5: High-Res (256px) + ReduceLROnPlateau (The Smooth Operator)
 **Configuration:**
-*   **Resolution:** 180x180.
+*   **Resolution:** 256x256.
+*   **Activation/Init:** **ELU** + **HeNormal** (Inherited from Run 4).
 *   **New Feature:** `ReduceLROnPlateau` (Factor 0.2, Patience 5).
 *   **Outcome:** Extremely stable convergence, though slightly lower peak accuracy than Run 4.
 
@@ -308,25 +309,30 @@ Run 4 remains the **Performance Champion** (85%), while Run 5 is the **Stability
 ## 5. Strategic Wrap-Up (The Narrative Arc)
 *Note: This structure is designed for the "Beleg" defense.*
 
-**Yes, Run 4 is logically perfect for the Beleg. It represents the "Scientific Climax" of your project.**
+**This narrative demonstrates the journey from a naive implementation to a scientifically optimized solution.**
 
 1.  **Act 1: Run 1 (The Baseline)** - We failed due to **Arrogance**.
-    *   *Result:* Overfitting.
-    *   *Lesson:* "We need Regularization."
+    *   *Result:* Massive Overfitting (99% Train vs 73% Val).
+    *   *Lesson:* "Memorization is not learning. We need Regularization."
 
 2.  **Act 2: Run 2 (The Correction)** - We failed due to **Weakness**.
-    *   *Result:* Stable but low accuracy (~68%).
-    *   *Lesson:* "Regularization worked, but the brain was too small (3 blocks). We need Capacity."
+    *   *Result:* Stable but low accuracy (~68%). The gap closed, but the model was "dumb."
+    *   *Lesson:* "Regularization worked, but the 3-block architecture lacked the capacity to distinguish complex trash types. We need a Deeper Brain."
 
-3.  **Act 3: Run 3 (The Champion)** - We succeeded through **Scale**.
-    *   *Result:* High accuracy (87%), but jittery and arguably lucky.
-    *   *Lesson:* "The bigger brain (5 blocks + GAP) worked, but it struggled to stabilize near the end."
+3.  **Act 3: Run 3 (Raw Power)** - We succeeded through **Scale**.
+    *   *Result:* High accuracy (87%), but the training was "jittery" and unstable.
+    *   *Lesson:* "The 5-block architecture has the power, but it's volatile. It's like a Ferrari with bad suspension."
 
-4.  **Act 4: Run 4 (The Specialist)** - We optimized through **Science**.
-    *   *Logic:* "We analyzed the remaining errors. The model was confused by textures (Plastic vs Glass). So we gave it Better Eyes (256px). We also noticed unstable gradients, so we gave it Better Math (ELU + He Normal) and a Better Teacher (ReduceLROnPlateau)."
-    *   *Goal:* This isn't just about "bigger numbers." It's about demonstrating that you understand *why* deep networks succeed or fail (Signal propagation, Texture resolution, Gradient flow).
+4.  **Act 4: Run 4 (The Precision Specialist)** - We optimized through **Math**.
+    *   *Action:* Switched to ELU and He-Normal (still 128x128).
+    *   *Result:* **Peak Validation Accuracy (85.2%)**.
+    *   *The Catch:* The Confusion Matrix revealed a "Shadow Overfitting." While it scored high overall, it completely failed on specific classes like Metal (Recall 0.30) and Shoes (Recall 0.20). It optimized for the exam (Validation Set) but failed the real world (Test Set).
 
-**Even if Run 4 gets 86% instead of 90%, it is still a "Success" for the Beleg because the methodology is flawless. It proves you are an engineer, not just a script-kiddie.**
+5.  **Act 5: Run 5 (The Stabilizer)** - We matured through **Balance**.
+    *   *Action:* **Resolution upgrade to 256x256** and added `ReduceLROnPlateau` to carefully land the model in a global minimum.
+    *   *Result:* Lower peak accuracy (~82%), **BUT** superior reliability.
+    *   *The Proof:* The Confusion Matrix is beautiful. It solved the "Metal/Shoes" blindness (Recall jumped from ~0.25 to ~0.78).
+    *   *Conclusion:* **Run 4 is the flashy sprinter, but Run 5 is the reliable worker.** For the Beleg, Run 4 is our "Champion" by metrics, but Run 5 is the moral victor because it actually *understands* the data better (less confusion, more balance).
 
 ---
 
