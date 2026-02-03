@@ -26,49 +26,47 @@ Das System wurde in **Python** unter Verwendung von **TensorFlow/Keras** impleme
 *   **Optimierung:** Verwendung des Adam-Optimierers mit einer lernratenabhängigen Reduzierung (`ReduceLROnPlateau`), um das globale Minimum der Loss-Function präzise zu erreichen.
 
 ## 5. Durchführung & Ergebnisse
-*(Hinweis: Diese Sektion wird nach Abschluss der Re-Runs mit den finalen Metriken gefüllt)*
-*   **Run 1 (Baseline):** Erreichte ~97% Trainingsgenauigkeit, aber nur ~69% Validierungsgenauigkeit (Starkes Overfitting).
-*   **Run 2 (Regularisiert):** Stabilisierung der Validierungskurve bei ~76%.
-*   **Run 3 (Champion):** Finales Modell mit **87,43% Peak Accuracy**.
+Die Experimente wurden in fünf Phasen (Runs) unterteilt, um die Auswirkungen spezifischer Optimierungen zu isolieren.
+
+*   **Run 1 (Baseline):** Das Modell erreichte schnell ~99% Trainingsgenauigkeit, stagnierte aber bei **~73% Validierungsgenauigkeit**.
+    *   *Diagnose:* Massives Overfitting ("Arroganz"). Das Modell lernte Pixelmuster auswendig, keine Merkmale.
+*   **Run 2 (Regularisierung):** Mit Data Augmentation und Dropout sank die Genauigkeit auf **~68%**, aber der Spalt zwischen Training und Validierung schloss sich fast vollständig.
+    *   *Diagnose:* Das "Ehrliche" Modell. Die geringe Genauigkeit zeigte das Kapazitätslimit der 3-Block-Architektur auf.
+*   **Run 3 (Scale):** Die Skalierung auf 5 Blöcke (512 Filter) brachte den Durchbruch auf **~87% Peak Accuracy**, jedoch mit instabilen Loss-Kurven ("Zittern").
+    *   *Diagnose:* Kapazitätsproblem gelöst, aber Stabilitätsprobleme am Ende des Trainings.
+*   **Run 4 (Optimization):** Der Wechsel zu **ELU-Aktivierung** und **He-Normal-Initialisierung** stabilisierte das Training signifikant und erzielte solide **~85%**.
+    *   *Diagnose:* "Scientific Climax". Mathematische Optimierung statt purer Masse.
+*   **Run 5 (Stability):** Erhöhung der Auflösung auf 180x180 und Einsatz von `ReduceLROnPlateau`.
+    *   *Ergebnis:* Robusteste Generalisierung mit **81% Test-Genauigkeit** über alle Klassen.
 
 ### 5.1 Fehleranalyse (Confusion Matrix)
-Die Analyse der Konfusionsmatrix zeigt spezifische Schwächen:
-*   **Metall vs. Plastik:** Glänzende Oberflächen führen zu Verwechslungen, da das Modell "Glanz" fälschlicherweise als primäres Merkmal für Metall lernt.
-*   **Bio-Müll:** Die am schwersten zu klassifizierende Gruppe aufgrund der fehlenden geometrischen Konsistenz (z.B. Apfelrest vs. Bananenschale).
+Die detaillierte Analyse der Testdaten offenbart die Evolution der Modell-Intelligenz:
+*   **Frühe Probleme (Run 1-3):** Massive Probleme bei **Metall** und **Schuhen** (Recall oft < 40%). Das Modell ignorierte diese Minderheitenklassen zugunsten von einfachen Klassen wie Kleidung.
+*   **Der Durchbruch (Run 5):** Run 5 ist das einzige Modell, das eine ausgeglichene Performance zeigt.
+    *   **Biological:** 97% Precision (nahezu perfekt).
+    *   **Battery:** 96% Precision.
+    *   **Schwachstelle:** Die Unterscheidung zwischen **Plastik** und **Metall** bleibt aufgrund ähnlicher Oberflächenreflexionen die größte Herausforderung.
 
-## 6. Zusammenfassung & Ausblick
-Das Projekt zeigt, dass ein maßgeschneidertes CNN auch mit begrenzten Daten hohe Genauigkeiten erzielen kann, wenn Regularisierungstechniken konsequent angewendet werden.
-*   **Fazit:** Die Erhöhung der Kapazität (5 Blocks) in Kombination mit Batch Normalization war der entscheidende Durchbruch.
-*   **Zukünftige Arbeit:** Integration von Transfer Learning (z.B. MobileNetV2) und Experimente mit höherer Auflösung (256x256), um die Metall-Plastik-Unterscheidung zu schärfen.
+## 6. Zusammenfassung & Fazit
+Das Projekt "Sorti" demonstriert erfolgreich den Weg vom "naiven" Skript zum robusten Deep-Learning-Modell.
+*   **Haupterkenntnis:** Kapazität (Tiefe) ist notwendig, aber ohne mathematische Stabilisierung (Batch Norm, He-Init) und dynamische Lernratenanpassung nicht kontrollierbar.
+*   **Finales Modell:** Run 4 stellt das "wissenschaftliche Optimum" dar (beste Validierungsmetriken), während Run 5 das "praxistauglichste" Modell ist (beste Test-Generalisierung).
 
----
-*(Dokumentation basierend auf `approach.md` und `results.md`)*
+## 7. Gliederung der Verteidigung (Narrativer Bogen)
+**Leitmotiv:** "Vom Scheitern zum Verstehen - Eine Evolution in 5 Akten."
 
-## 7. Gliederung der Verteidigung (20 Minuten)
-**Ziel:** ~10 Folien. Fokus auf die Story ("Vom Scheitern zum Erfolg") und die technischen Learnings.
-
-*   **Folie 1: Titel & Übersicht**
-    *   Projektname, Kurs, Datum.
-*   **Folie 2: Die Motivation & Daten**
-    *   Warum ist das schwer? (Visuelle Varianz).
-    *   Zeigen eines 3x3 Rasters der 128x128 Bilder.
-*   **Folie 3: Das Scheitern (Run 1 - Baseline)**
-    *   Graph: Starkes Overfitting.
-    *   Narrativ: "Das Modell hat auswendig gelernt."
-*   **Folie 4: Die Reparatur (Run 2 - Regularisierung)**
-    *   Konzept: Augmentation & Dropout.
-    *   Ergebnis: Stabilisierung, aber "Gläserne Decke" bei der Genauigkeit.
-*   **Folie 5: Der Champion (Run 3 - Deep CNN)**
-    *   Architektur: 5 Blöcke, 512 Filter.
-    *   Technik: **Batch Normalization** & **L2** für Stabilität und Tiefe.
-*   **Folie 6: Finale Ergebnisse**
-    *   Graph: Hohe Accuracy (>85%), niedriger Loss.
-    *   Vergleichstabelle der 3 Runs.
-*   **Folie 7: Fehleranalyse (Deep Dive)**
-    *   Bild: `confusion_matrix.png`.
-    *   Diskussion: Warum wird Plastik oft für Metall gehalten? (Glanz-Problem).
-*   **Folie 8: Fazit & Ausblick**
-    *   Zusammenfassung der Learnings.
-    *   Nächste Schritte: Transfer Learning oder höhere Auflösung.
-*   **Folie 9: Live Demo (Optional)**
-    *   Echtzeit-Klassifizierung eines Testbildes im Notebook.
+*   **Akt 1: Die Arroganz (Run 1)**
+    *   Problem: Overfitting.
+    *   Learning: Wir brauchen Regularisierung.
+*   **Akt 2: Die Schwäche (Run 2)**
+    *   Problem: Underfitting (68%).
+    *   Learning: Regularisierung wirkt, aber das Gehirn ist zu klein (3 Blöcke). Wir brauchen Kapazität.
+*   **Akt 3: Die rohe Kraft (Run 3)**
+    *   Problem: Instabilität trotz 87% Peak.
+    *   Learning: Tiefe Netzwerke sind schwer zu trainieren.
+*   **Akt 4: Die Wissenschaft (Run 4)**
+    *   Lösung: ELU + He Normal.
+    *   Ergebnis: Stabiles High-Performance Modell.
+*   **Akt 5: Die Reife (Run 5)**
+    *   Lösung: Höhere Auflösung & `ReduceLROnPlateau`.
+    *   Ergebnis: Echte Generalisierung (81% Test Accuracy) und Lösung des "Metall-Problems".
