@@ -52,6 +52,44 @@ print("👉 ACTION: Restart your Colab session and re-run your Data Loading cell
 
 ---
 
+## 2. Dataset Visualization: Show all Categories
+Use this snippet to ensure your data loading works correctly and to see one representative image for every class. It iterates through the batches until it has "harvested" an image for each category.
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 1. Harvesting: Find one image for each unique class
+found_images = {}
+num_classes = len(class_names)
+
+for images, labels in training_ds:
+    for i in range(len(labels)):
+        class_idx = labels[i].numpy()
+        # Only save if we haven't seen this class yet
+        if class_idx not in found_images:
+            found_images[class_idx] = images[i].numpy().astype("uint8")
+        
+        # Stop searching once we have all 9 classes
+        if len(found_images) == num_classes:
+            break
+    if len(found_images) == num_classes:
+        break
+
+# 2. Plotting: Display the representative images in a 3x3 grid
+plt.figure(figsize=(12, 12))
+for i, class_idx in enumerate(sorted(found_images.keys())):
+    ax = plt.subplot(3, 3, i + 1)
+    plt.imshow(found_images[class_idx])
+    plt.title(class_names[class_idx])
+    plt.axis("off")
+
+plt.tight_layout()
+plt.show()
+```
+
+---
+
 ## 3. Run 4: The High-Res Specialist (Optimized Math)
 This model is designed for **256x256** input. it uses **ELU** to prevent dying neurons and **He Normal** to maintain signal strength through the 5 blocks.
 
