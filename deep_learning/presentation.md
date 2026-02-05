@@ -1,87 +1,91 @@
 # Sprecher-Skript: Verteidigung "Sorti"
-**Zielnote:** 1.0 (Bachelor-Niveau)  
-**Dauer:** ~20 Minuten  
-**Sprecher-Persona:** Souverän, leidenschaftlich, analytisch. (Kein Ablesen, sondern Erklären!)
+**Ziel:** Verteidigung des Deep Learning Projekts (Note 1.0)
+**Dauer:** ~20 Minuten
+**Stil:** Professionell, analytisch, story-driven ("Die Evolution des Modells").
 
 ---
 
-## I. Einleitung & Fundament (Min 0:00 – 04:00)
+## 1. Motivation und Problemstellung
 
-### Folie 1: Titel & Begrüßung
-*   **Sprechertext:** "Schönen guten Tag. Mein Projekt trägt den Namen 'Sorti'. Es ist nicht nur ein Klassifikator für Müll, sondern eine experimentelle Reise durch die Tiefen von Convolutional Neural Networks. Wir alle kennen das Problem der Mülltrennung aus dem Alltag. Aber heute schauen wir unter die Motorhaube: Wie bringt man einer Maschine bei, den Unterschied zwischen einer zerknüllten Alufolie und einer glänzenden Plastikverpackung zu 'verstehen', wenn beide für ein einfaches Auge fast identisch aussehen?"
-*   **Strategischer Fokus:** Positionierung des Projekts als ingenieurwissenschaftliche Problemlösung (nicht nur "Coding", sondern "System-Design").
-*   **Implementierungs-Details:** Das Projekt wurde komplett in Python mit TensorFlow/Keras entwickelt, wobei der Fokus auf einer modularen Pipeline lag, die schnelle Iterationen zwischen den Experimenten ermöglichte.
+**Sprechertext:**
+"Herzlich Willkommen zur Verteidigung meines Projekts 'Sorti'.
+Wir leben in einer Welt, die in Müll versinkt. Die Industrie bewegt sich hin zur Kreislaufwirtschaft, aber die größte Hürde ist oft der erste Schritt: Die korrekte Trennung. Mein Ziel war es, ein KI-Modell zu entwickeln, das genau dieses Problem löst."
 
-### Folie 2: Motivation & Problemstellung
-*   **Sprechertext:** "Die größte Hürde bei der Müllklassifizierung ist die Varianz. Müll hat keine semantische Formkonstanz wie ein Auto oder ein Gesicht. Eine Plastikflasche kann intakt, zerdrückt oder in Teilen vorliegen. Wir stehen also vor der Herausforderung, dass das Modell keine Formen lernen darf, sondern Texturen und Materialeigenschaften extrahieren muss. Das Ziel: Ein System, das robust genug für reale, unvorhersehbare Daten ist."
-*   **Strategischer Fokus:** Definition der "Intra-Class Variance" und "Inter-Class Similarity" als Kernprobleme.
-*   **Implementierungs-Details:** Vorbereitung auf das Feature-Engineering durch CNNs. Wir nutzen die hierarchische Natur von Convolutions, um von einfachen Kanten (Layer 1) zu komplexen Materialoberflächen (Layer 5) zu gelangen.
-
----
-
-## II. Die Datenbasis & Roadmap (Min 04:00 – 07:00)
-
-### Folie 3: Die Daten & Herausforderungen
-*   **Sprechertext:** "Unser Datensatz umfasst 9 Kategorien, von Metall über Glas bis hin zu organischem Abfall. Die Krux: Die Bilder sind oft unter schlechten Lichtverhältnissen aufgenommen. In der Implementierung habe ich daher `image_dataset_from_directory` genutzt, aber mit einem entscheidenden Detail: Einem strikten Validierungs-Split von 20%, um sicherzustellen, dass wir nie auf Daten testen, die das Modell bereits 'gesehen' hat. Wir haben hier eine klassische 'Long Tail' Distribution bei einigen Klassen, was die Gewichtung später noch wichtig macht."
-*   **Strategischer Fokus:** Datenintegrität und Bewusstsein für die Grenzen des Datensatzes.
-*   **Implementierungs-Details:** Standardisierung der Inputs auf ein einheitliches Format. Initial 128x128 Pixel, um Rechenzeit zu sparen, bevor wir für das finale Modell die Informationsdichte erhöhten.
-
-### Folie 4: Die Strategie – Der 5-Akter
-*   **Sprechertext:** "Ich habe das Projekt in fünf distinkte Phasen unterteilt. Warum? Weil man im Deep Learning oft den Fehler macht, sofort das komplexeste Modell zu bauen. Mein Ansatz war: 'Build it simple, find the failure, fix the failure'. Wir wandern von der Baseline über die Regularisierung und Skalierung hin zur mathematischen Optimierung der Aktivierungsfunktionen."
-*   **Strategischer Fokus:** Wissenschaftliches Vorgehen (Iteratives Prototyping). Jedes Experiment dient als Hypothesentest für das nächste.
+**Das Problem:**
+"Für uns Menschen ist es leicht: Wir sehen eine Dose, wir wissen 'Metall'. Für eine KI ist das extrem schwer.
+*   **Die Kernfrage:** Kann ein mathematisches Modell den Unterschied zwischen einer zerknüllten Alufolie und einer glänzenden Plastikverpackung 'verstehen'?
+*   Es geht hier nicht um einfache Formen – eine Dose kann plattgedrückt sein. Es geht um das Verständnis von **Textur, Reflektion und Materialbeschaffenheit**."
 
 ---
 
-## III. Die Evolution der Architektur (Min 07:00 – 16:00)
+## 2. Die Daten und Herausforderungen
 
-### Folie 5: Akt 1 – Die Arroganz (Baseline)
-*   **Sprechertext:** "Die Baseline war ein schlichtes CNN mit drei Conv-Layern. Das Ergebnis war ein Lehrbuchbeispiel für Overfitting: 99% Training-Accuracy, aber nur 73% im Test. Strategisch gesehen war das Modell zu mächtig für die wenigen Informationen, die es extrahieren sollte. Es hat die Pixel-Positionen auswendig gelernt statt der Merkmale."
-*   **Implementierungs-Details:** Nutzung von `Flatten` und großen `Dense`-Layern am Ende. Das führte zu einer explodierenden Parameteranzahl (Millionen von Gewichten), die für einen so kleinen Datensatz schlicht kontraproduktiv war.
+**Sprechertext:**
+"Schauen wir uns das Fundament an: Die Daten."
 
-### Folie 6: Akt 2 – Die Demut (Regularisierung)
-*   **Sprechertext:** "Um das Auswendiglernen zu verhindern, haben wir dem Modell 'Steine in den Weg gelegt'. Wir haben Data Augmentation implementiert – Zoom, Rotation, Flips. Technisch gesehen haben wir das direkt in das Keras-Modell als Layer integriert, damit die Transformationen auf der GPU laufen. Zusätzlich kam Dropout zum Einsatz. Die Accuracy sank auf 68%, aber – und das ist wichtig – die Lücke zwischen Training und Test schloss sich. Das Modell wurde ehrlich."
-*   **Strategischer Fokus:** Bekämpfung der Varianz durch künstliche Datensatzvergrößerung.
-*   **Implementierungs-Details:** `RandomFlip("horizontal_and_vertical")`, `RandomRotation(0.2)` und `Dropout(0.5)` vor dem Output-Layer.
+**Fakten:**
+*   **Quellen:** Kombination aus 'Garbage Classification' (cchangcs) und 'Garbage Dataset' (Suman Kunwar).
+*   **Umfang:** 15.244 Bilder in 9 Klassen (von Batterie bis Schuhe).
+*   **Split:** 80% Training, 20% Validierung.
 
-### Folie 7: Akt 3 – Die Kraft (Skalierung & Stabilität)
-*   **Sprechertext:** "Ein ehrliches, aber schwaches Modell bringt uns nicht weiter. Also haben wir die Tiefe auf 5 Blöcke erhöht. Um das Training bei dieser Tiefe stabil zu halten, habe ich **BatchNormalization** eingeführt. Das wirkt wie eine interne Standardisierung nach jeder Schicht. Das Ergebnis: 87% Accuracy. Aber: Die Kurven waren extrem volatil. Das Modell war wie ein Rennwagen ohne Stoßdämpfer."
-*   **Strategischer Fokus:** Kapazitätserhöhung bei gleichzeitiger Kontrolle der Gradientenflüsse.
-*   **Implementierungs-Details:** 5 Blöcke mit Filtern von 16 bis zu 256. Einführung von `GlobalAveragePooling2D` statt `Flatten`, um die Parameteranzahl drastisch zu reduzieren und das Modell robuster gegen räumliche Verschiebungen zu machen.
-
-### Folie 8: Akt 4 – Die Wissenschaft (ELU & He-Init)
-*   **Sprechertext:** "Um die Instabilität zu lösen, sind wir an die mathematischen Grundlagen gegangen. Standard-ReLU-Einheiten 'sterben' oft ab, wenn sie negative Werte erhalten. Wir haben auf **ELU (Exponential Linear Unit)** umgestellt. Gepaart mit der **He-Normal-Initialisierung** sorgte das dafür, dass die Varianz der Aktivierungen über alle 5 Blöcke hinweg konstant blieb. Das Training wurde butterweich, die Kurven stabilisierten sich bei 85%."
-*   **Strategischer Fokus:** Lösung des "Dying ReLU"-Problems und Optimierung der Konvergenzgeschwindigkeit.
-*   **Implementierungs-Details:** `activation='elu'` in allen Conv-Layern und `kernel_initializer='he_normal'`. Dies stellt sicher, dass die Gewichte zu Beginn weder zu groß (Exploding Gradients) noch zu klein (Vanishing Gradients) sind.
-
-### Folie 9: Der Plot Twist (Die Metrik-Falle)
-*   **Sprechertext:** "Hier kam der Moment der Wahrheit. 85% sehen auf dem Papier toll aus. Aber ein Blick auf die **Confusion Matrix** offenbarte ein Desaster: Das Modell hat Metall fast immer als Plastik oder Glas klassifiziert. Warum? Weil die Details von Metalloberflächen bei 128 Pixeln einfach verloren gingen. Die hohe Gesamtgenauigkeit kam nur durch die 'einfachen' Klassen wie Kleidung zustande. Ein klassischer Fall, wo die Metrik 'Accuracy' uns angelogen hat."
-*   **Strategischer Fokus:** Kritische Evaluation jenseits der Hauptmetrik. Fokus auf Recall und Precision für unterrepräsentierte/schwierige Klassen.
-
-### Folie 10: Akt 5 – Die Reife (Auflösung & Scheduler)
-*   **Sprechertext:** "Der finale Schlag: Erhöhung der Auflösung auf **256x256 Pixel**, um die metallischen Texturen greifbar zu machen. Zusätzlich haben wir einen **Learning Rate Scheduler** implementiert. Wenn das Modell stagniert, senkt das System automatisch die Lernrate, um feingranularer in das Minimum der Loss-Function zu gleiten. Der Recall für Metall stieg von 30% auf fast 80%. Das ist der Unterschied zwischen einem Prototyp und einer produktionsreifen KI."
-*   **Strategischer Fokus:** Information Density & Dynamic Optimization.
-*   **Implementierungs-Details:** `input_shape=(256, 256, 3)` und der Keras Callback `ReduceLROnPlateau(factor=0.2, patience=3)`.
+**Die Herausforderungen:**
+1.  **Granulare Details:** Metall und Plastik können beide glänzen. Glas und Plastik sind beide transparent. Das Modell muss feinste Nuancen lernen.
+2.  **Kein Form-Lernen:** Da Müll oft deformiert ist (zerknüllt, zerrissen), darf das Modell nicht einfach 'Zylinder = Flasche' lernen. Es muss die Textur extrahieren.
+3.  **Hardware-Hunger:** Je tiefer wir graben, desto größer wird das Modell. Wir brauchten massive Rechenpower."
 
 ---
 
-## IV. Abschluss & Q&A (Min 16:00 – 20:00)
+## 3. Strategie und Implementierung
 
-### Folie 11: Fazit
-*   **Sprechertext:** "Was nehmen wir mit? Erstens: Deep Learning ist ein iterativer Prozess der Fehleranalyse. Zweitens: Die Architektur ist wichtig, aber die mathematischen Details wie Aktivierungsfunktionen und Initialisierung entscheiden über Sieg oder Niederlage. Unser Champion-Modell ist nicht das mit der höchsten Peak-Accuracy, sondern das mit der besten Balance über alle Materialklassen hinweg."
-*   **Strategischer Fokus:** Zusammenfassung der Lessons Learned: Validität vor Performance.
+**Sprechertext:**
+"Wie geht man so ein komplexes Problem an? Nicht mit der Brechstange, sondern mit Strategie."
 
-### Folie 12: Ausblick & Dank
-*   **Sprechertext:** "Wie geht es weiter? Der nächste logische Schritt wäre Transfer Learning mit einem EfficientNet-Backbone, um die 95% zu knacken. Aber durch den 'From Scratch'-Ansatz haben wir jetzt ein tiefes Verständnis für die Merkmalsextraktion von Müll gewonnen. Vielen Dank für Ihre Aufmerksamkeit – ich bin gespannt auf Ihre Fragen."
+**Das Setup:**
+*   **Umgebung:** Google Colab mit einer **A100 GPU** (40GB VRAM) und 83GB System RAM.
+*   **Framework:** TensorFlow / Keras.
+*   **Optimizer:** Adam (Adaptive Learning Rate).
+*   **Loss Function:** Sparse Categorical Crossentropy.
+
+**Die 5-Phasen-Strategie:**
+"Ich habe das Modell nicht einfach 'gebaut'. Ich habe es **evolviert**. Mein Mantra war: *Build it simple, find the failure, fix the failure.* Wir sind durch 5 Phasen gegangen, wobei jede Phase die Schwäche der vorherigen korrigiert hat."
+
+### Phase 1: Baseline (128x128)
+*   "Wir starteten simpel. Das Ergebnis? Massives Overfitting. Das Modell hat die Bilder auswendig gelernt (Memory), aber nicht verstanden."
+
+### Phase 2: Regularisierung (128x128)
+*   "Wir fügten 'Bremsen' ein: Dropout und Data Augmentation. Das Overfitting verschwand, aber das Modell war zu 'dumm' (Underfitting). Es fehlte die Kapazität."
+
+### Phase 3: Scaling (128x128)
+*   "Wir machten das Gehirn größer: 5 Convolutional Blöcke. Die Accuracy erreichte einen numerischen Peak von **87,04%**.
+*   **Aber:** Das Training war instabil wie ein Erdbeben. Die Loss-Kurve hatte massive Sprünge. In der Wissenschaft ist ein 'Glückstreffer' weniger wert als ein stabiles System."
+
+### Phase 4: Der Champion (128x128)
+*   "Hier kam die mathematische Optimierung: **ELU** und **He-Normal**.
+*   **Das Ergebnis:** Wir halten die **87% Accuracy**, aber bei absolut glatten Kurven. Das Modell ist reproduzierbar, stabil und balanciert die Klassen besser aus (z.B. Metall-Recall).
+*   **Fazit:** Run 4 ist unser wissenschaftlicher Champion."
+
+### Phase 5: Das High-Res Experiment (256x256)
+*   "Wir dachten: 'Mehr Pixel = Mehr Performance'. Wir skalierten auf 256x256 Pixel hoch.
+*   **Das Ergebnis:** Überraschenderweise sank die Accuracy auf **81%**.
+*   **Die Lektion:** Größer ist nicht immer besser. Die höhere Auflösung brachte mehr Rauschen als nützliche Information."
 
 ---
 
-## Anhang: Vertiefende Experten-Fragen (Vorbereitung)
+## 4. Ausblick und Fazit
 
-**F: Warum ELU statt Leaky ReLU?**  
-*   **Antwort:** "ELU bietet eine glattere Sättigung für negative Werte, was die Gradienten stabiler macht. Während Leaky ReLU für extrem negative Werte immer weiter wächst, sättigt ELU ab, was eine gewisse Regularisierung bewirkt und den Mittelwert der Aktivierungen näher an Null bringt."
+**Sprechertext:**
+"Was nehmen wir aus dieser Reise mit?"
 
-**F: Welchen Einfluss hatte Global Average Pooling auf die Overfitting-Problematik?**  
-*   **Antwort:** "Massiv. Ein `Flatten`-Layer nach einem 256-Filter-Block würde bei 256x256 Input Zehntausende Neuronen erzeugen. Jeder Dense-Layer dahinter hätte Millionen Parameter. GAP reduziert das auf exakt 256 Werte – einen pro Feature Map. Das zwingt das Netz, globale Merkmale zu lernen, anstatt sich auf die exakte Pixelposition zu verlassen."
+**Fazit:**
+1.  **Deep Learning ist ein Prozess:** Es geht nicht um den ersten Code, sondern um iterative Fehleranalyse (Overfitting -> Underfitting -> Instability -> Perfection).
+2.  **Architektur > Brute Force:** Run 4 (kleine Bilder, schlaue Mathematik) hat Run 5 (große Bilder) geschlagen.
+3.  **Genauigkeit ist nicht alles:** Wir brauchen ein Modell, das auch effizient ist.
 
-**F: Warum haben Sie die Lernrate reduziert und nicht einfach mehr Epochen trainiert?**  
-*   **Antwort:** "Weil das Modell bei einer hohen Lernrate um das Minimum 'herumspringt'. Es ist wie ein Golfball, der zu schnell geschlagen wird und über das Loch rollt. Die Reduktion der Lernrate erlaubt es dem Optimizer, in die feinen Senken der Loss-Landschaft einzutauchen, die er vorher schlicht übersprungen hätte."
+**Technische Anekdote (Lessons Learned):**
+"Ein kurzes Wort zur Fehlerkultur: Anfangs dachte ich, mein Champion-Modell (Run 4) wäre schlecht (66%). Der Grund? Ich hatte es versehentlich mit 256er-Bildern getestet, obwohl es auf 128er trainiert war. Nach der Korrektur zeigte sich die wahre Stärke von 87%. Pre-Processing ist entscheidend!"
+
+**Ausblick:**
+*   **Transfer Learning:** Der nächste logische Schritt wäre der Einsatz von vortrainierten Netzen (z.B. EfficientNet), um die letzten Prozentpunkte zu holen.
+*   **Anwendung:** Eine App, die das Kamerabild scannt und direkt anzeigt: 'Blaue Tonne' oder 'Gelber Sack'."
+
+"Vielen Dank. Ich stehe nun für Ihre Fragen zur Verfügung."

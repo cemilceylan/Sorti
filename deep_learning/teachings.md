@@ -515,6 +515,3 @@ Imagine passing a whisper through a chain of 50 people. If everyone whispers sli
 *   **Mechanism:** It initializes weights with a slightly higher variance (louder volume).
 *   **Result:** It compensates for the "silence" caused by negative inputs. It ensures that the signal arriving at Layer 5 is just as loud and clear as the signal that entered Layer 1.
 *   **Rule:** **Always use `he_normal` when using ReLU or ELU.**
-
-
-

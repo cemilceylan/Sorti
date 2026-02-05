@@ -1,117 +1,91 @@
 # Beleg: Automatisierte Müllklassifizierung mit Convolutional Neural Networks (Sorti)
 
 **Kurs:** ProgData WS25 (Intro to Deep Learning / Computer Vision)  
-**Autor:** [Dein Name]  
-**Datum:** 3. Februar 2026  
+**Autor:** Cemil  
+**Datum:** 5. Februar 2026  
 
 ---
 
 ## 1. Einleitung & Motivation
-In der modernen Kreislaufwirtschaft ist die effiziente Trennung von Abfällen eine der größten technologischen Herausforderungen. Manuelle Sortierung ist zeitaufwendig und fehleranfällig. Das Projekt "Sorti" zielt darauf ab, ein tiefes neuronales Netz (CNN) zu entwickeln, das Bilder von Abfällen autonom in neun Kategorien (z. B. Metall, Glas, Bio-Müll) klassifiziert. Die besondere Schwierigkeit liegt in der hohen Varianz der Objekte: Eine zerknitterte Cola-Dose sieht visuell völlig anders aus als eine neue, behält aber ihre chemische Klassifizierung bei. Ziel ist es, ein Modell zu entwickeln, das robuste Merkmale lernt, anstatt sich auf bloße Pixelmuster zu verlassen.
 
-## 2. Stand der Technik
-Traditionelle Computer-Vision-Ansätze basierten oft auf manuell entwickelten Filtern für Kanten oder Farben. Moderne Deep-Learning-Verfahren, insbesondere Convolutional Neural Networks (CNNs), automatisieren diesen Prozess. Durch die Verwendung von Faltungsschichten (Convolutional Layers) lernt das System eine Hierarchie von Merkmalen: von einfachen Kanten in den ersten Schichten bis hin zu komplexen Formen (wie dem Flaschenhals oder der Textur von Karton) in tieferen Schichten.
+In der modernen Abfallwirtschaft ist die effiziente und sortenreine Trennung von Materialien ("Kreislaufwirtschaft") der Schlüssel zur Nachhaltigkeit. Während Menschen intuitiv zwischen einer Glasflasche und einer Plastikflasche unterscheiden können, stellt dies für Computer Vision eine enorme Herausforderung dar. Visuelle Ähnlichkeiten (z.B. glänzende Oberflächen bei Metall und Plastik) und die unendliche Varianz der Verformung (zerknüllte Dosen vs. intakte Dosen) machen "Müll" zu einer der schwierigsten Klassen für die Objekterkennung.
 
-## 3. Methodik: Der 5-Akter (The Experimental Arc)
-Um die optimale Architektur zu finden, wurde kein starrer Plan verfolgt, sondern eine **evolutionäre Strategie in 5 Akten**. Jeder "Run" basierte auf der Fehleranalyse des Vorgängers:
+Das Projekt **Sorti** hat das Ziel, ein Convolutional Neural Network (CNN) zu entwickeln, das "From Scratch" (ohne vortrainierte Modelle) lernt, diese Materialien robust zu unterscheiden.
 
-1.  **Akt 1 (Baseline):** Ein naives Modell, um zu sehen, wie schnell das Netz lernt (und overfittet).
-2.  **Akt 2 (Regularisierung):** Einfügen von "Bremsen" (Dropout, Augmentation), um das Auswendiglernen zu stoppen.
-3.  **Akt 3 (Scale):** Massive Erhöhung der neuronalen Kapazität (Tiefe), um komplexe Merkmale zu erfassen.
-4.  **Akt 4 (Optimization):** Mathematische Feinjustierung (Aktivierungsfunktionen, Initialisierung) für maximale Leistung.
-5.  **Akt 5 (Stability):** Fokus auf Zuverlässigkeit und Fehlerbalance statt reiner Spitzenleistung.
+## 2. Datenbasis und Herausforderungen
 
-## 4. Implementierung & Systemaufbau
-Das System wurde in **Python** unter Verwendung von **TensorFlow/Keras** auf einer **A100 GPU (Google Colab)** trainiert.
+### 2.1 Die Daten
+Der Datensatz ist eine Kombination aus zwei Open-Source-Quellen ("Garbage Classification" von cchangcs und "Garbage Dataset" von Suman Kunwar), was zu einer Gesamtmenge von **15.244 Bildern** führt.
+*   **Klassen (9):** Battery, Biological, Cardboard, Clothes, Glass, Metal, Paper, Plastic, Shoes.
+*   **Split:** 80% Training, 20% Validierung (streng getrennt, um Data Leakage zu vermeiden).
 
-### 4.1 Datenbasis
-*   **Input:** RGB-Bilder, resized auf 128x128 (Run 1-4) und 256x256 (Run 5).
-*   **Klassen:** 9 Kategorien (Battery, Biological, Cardboard, Clothes, Glass, Metal, Paper, Plastic, Shoes).
+### 2.2 Die Herausforderungen
+1.  **Hohe Intra-Class Variance:** Eine Plastikflasche kann durchsichtig, grün, zerdrückt oder flach sein.
+2.  **Hohe Inter-Class Similarity:** Zerknülltes Papier sieht zerknülltem weißen Plastik oft zum Verwechseln ähnlich.
+3.  **Textur vs. Form:** Das Modell darf keine Formen auswendig lernen (da Müll oft deformiert ist), sondern muss Texturen und Materialoberflächen "verstehen" (z.B. die Reflexion von Licht auf Metall).
 
-### 4.2 Die finale Architektur (Run 4/5 Basis)
-*   **Backbone:** Ein tiefes **5-Block-CNN**. Jeder Block folgt dem Muster:
-    *   `Conv2D` (Filter steigend: 32 -> 512)
-    *   `BatchNormalization` (für stabile Gradienten)
-    *   `ELU`-Aktivierung (Run 4 & 5) oder `ReLU` (Run 3)
-    *   `MaxPooling2D`
-*   **Head:** `GlobalAveragePooling2D` (statt Flatten) zur extremen Parameter-Reduktion und Vermeidung von Overfitting im Klassifikator.
-*   **Regularisierung:**
-    *   **Data Augmentation:** RandomFlip, RandomRotation, RandomZoom.
-    *   **Dropout:** 50% der Verbindungen werden im Training gekappt.
-*   **Training:**
-    *   **Optimizer:** Adam.
-    *   **Callbacks:** `EarlyStopping` (Geduld) und `ReduceLROnPlateau` (Lernraten-Anpassung bei Stagnation).
+## 3. Strategie: Der 5-Akter ("Build, Break, Fix")
 
-## 5. Durchführung & Ergebnisse (Die 5 Runs)
+Anstatt sofort ein komplexes Modell zu bauen, folgte die Entwicklung einer evolutionären Strategie in 5 Phasen. Jede Phase war eine direkte Antwort auf die Schwächen der vorherigen.
 
-### Run 1: Die "Arroganz" (Baseline)
-*   **Setup:** 3 Blöcke, keine Regularisierung.
-*   **Ergebnis:** 99% Training vs. 73% Validation Accuracy.
-*   **Lektion:** Das Modell hat die Bilder auswendig gelernt (Overfitting). Es ist "arrogant" und scheitert an neuen Daten.
+### Phase 1: Die Baseline (Die "Arroganz")
+*   **Setup:** 3 Conv-Blöcke, Input 128x128, keine Regularisierung.
+*   **Ergebnis:** 99% Training Accuracy vs. 73% Validation Accuracy.
+*   **Diagnose:** **Overfitting.** Das Modell hat die Trainingsbilder auswendig gelernt ("Memory"), anstatt Konzepte zu verstehen. Es war "arrogant" (hohe Confidence bei falschen Vorhersagen), was zu einer explodierenden Loss-Kurve führte.
 
-### Run 2: Die "Demut" (Regularisierung)
-*   **Setup:** 3 Blöcke + Augmentation + Dropout + GlobalAveragePooling.
-*   **Ergebnis:** Einbruch auf ~68% Accuracy, aber kein Overfitting mehr (Train ≈ Val).
-*   **Lektion:** Das Modell ist jetzt "ehrlich", aber zu "dumm" (Underfitting). Die 3-Block-Architektur hat nicht genug Kapazität für 9 komplexe Klassen.
+### Phase 2: Die Regularisierung (Die "Demut")
+*   **Änderung:** Einführung von **Data Augmentation** (Flip, Rotation, Zoom) und **Dropout (50%)**.
+*   **Ergebnis:** Der Gap schloss sich (Train ≈ Val), aber die Accuracy stagnierte bei ~68%.
+*   **Diagnose:** **Underfitting.** Wir haben das "Auswendiglernen" erfolgreich gestoppt, aber das Modell (3 Blöcke) war nun zu "dumm" (zu wenig Kapazität), um die komplexen Unterschiede zwischen den 9 Klassen zu lernen.
 
-### Run 3: Die "Kraft" (Deep CNN)
-*   **Setup:** Upgrade auf **5 Blöcke** (bis 512 Filter) + BatchNormalization.
-*   **Ergebnis:** Sprung auf **~87% Peak Accuracy**.
-*   **Problem:** Extrem instabile Loss-Kurven ("Zittern"). Das Modell lernt schnell, ist aber volatil.
+### Phase 3: Scaling (Die "Kraft")
+*   **Änderung:** Upgrade auf **5 Conv-Blöcke** (bis zu 512 Filter) und **BatchNormalization**.
+*   **Ergebnis:** Numerischer Bestwert von **87,04% Accuracy**.
+*   **Problem:** Das Training war extrem instabil ("Zitter-Kurve"). Das Modell hatte zwar die Kraft (Kapazität), aber keine Kontrolle. Solche "Glückstreffer" sind in der Produktion schwer zu reproduzieren.
 
-### Run 4: Die "Wissenschaft" (Der Sprinter)
-*   **Setup:** 5 Blöcke + **ELU** Aktivierung + **He-Normal** Initialisierung + **128px Auflösung**.
-*   **Ergebnis:** Stabilste Konvergenz und **höchste Validierungs-Accuracy (85.2%)**.
-*   **Der Haken:** Die Confusion Matrix zeigte eine "Shadow Overfitting". Es ignorierte schwierige Klassen wie **Metall** (Recall 30%) und **Schuhe** (Recall 20%) fast komplett, um den Score zu maximieren.
+### Phase 4: Optimization (Der "Champion")
+*   **Änderung:** Mathematische Feinjustierung (Aktivierung: **ELU**, Initialisierung: **He-Normal**).
+*   **Ergebnis:** **87% Test Accuracy** (Confusion Matrix) bei absolut stabiler Konvergenz.
+*   **Der Sieg:** Obwohl Run 3 minimal höher peakte, ist Run 4 der wahre Sieger. Die Kurven sind glatt, das Modell ist reproduzierbar und zeigt eine bessere Balance in schwierigen Klassen (z.B. Metall Recall 79%).
+*   **Fazit:** Mathematik (ELU) schlägt rohe Gewalt.
 
-### Run 5: Die "Reife" (Der Marathonläufer)
-*   **Setup:** **256px Auflösung** + `ReduceLROnPlateau` (Lernrate dynamisch senken) + **ELU/He-Init**.
-*   **Ergebnis:** Etwas niedrigere Peak-Accuracy (~82%), aber **massive Verbesserung der Confusion Matrix**.
-*   **Durchbruch:** Der Recall für Metall stieg auf **78%**. Das Modell ist "fairer" und robuster, auch wenn der Score etwas tiefer ist.
-
-## 6. Zusammenfassung & Fazit
-Das Projekt zeigt, dass "Accuracy" nicht alles ist.
-*   **Run 4** ist unser "akademischer Sieger" (höchste Zahl).
-*   **Run 5** ist unser "praktischer Sieger" (beste Fehlerverteilung und Zuverlässigkeit).
-Wir haben gelernt, dass Tiefe (Capacity) notwendig ist, aber erst durch mathematische Stabilisierung (Batch Norm, He-Init) und intelligente Trainingssteuerung (ReduceLROnPlateau) kontrollierbar wird.
+### Phase 5: Das Experiment (High-Res & Limits)
+*   **Hypothese:** "Mehr Pixel = Mehr Details = Bessere Erkennung?"
+*   **Setup:** Erhöhung der Input-Auflösung auf **256x256** + `ReduceLROnPlateau`.
+*   **Ergebnis:** Accuracy sank auf **81%**.
+*   **Erkenntnis:** **Bigger isn't always better.** Die höhere Auflösung brachte mehr Rauschen (Noise) als Signal. Für die Architektur (5 Blöcke) war 128x128 der "Sweet Spot". Zudem stieg der Rechenaufwand massiv an.
 
 ---
 
-## 7. Gliederung der Verteidigung (20 Min)
+## 4. Technische Analyse & "Lessons Learned"
 
-**Titel:** "Sorti: Vom Pixel-Raten zum Verstehen - Eine KI-Evolution"
+### 4.1 Die "Resolution Trap" (Fehleranalyse)
+Ein entscheidendes Learning entstand bei der Auswertung der Modelle. Zunächst schien es, als ob Modell 4 (der Champion) nur eine Accuracy von 66% hätte.
+*   **Der Fehler:** Die Evaluierungs-Pipeline skalierte alle Bilder standardmäßig auf **256x256** (passend zu Run 5).
+*   **Der Effekt:** Modell 4 (trainiert auf 128px) bekam nun 256px-Bilder als Input. Da CNNs feste Filtergrößen lernen, zerstörte dieser Skalierungs-Mismatch die Performance (Drop von 87% auf 66%).
+*   **Die Lösung:** Nach Korrektur der Pipeline (Downscaling auf 128px für Modell 1-4) bestätigten sich die starken Ergebnisse von 87%.
+*   **Fazit:** *Pre-Processing ist Teil des Modells.* Eine Diskrepanz zwischen Training- und Inference-Pipeline kann selbst das beste Modell unbrauchbar machen.
 
-### 7.1 Zeitplan & Folien
+### 4.2 Confusion Matrix (Run 4)
+Der Champion (Run 4) zeigt eine hervorragende Balance:
+*   **Plastik:** 95% Recall (Das Modell erkennt fast jede Plastikflasche).
+*   **Metall:** 79% Recall (Schwierigste Klasse aufgrund von Reflexionen).
+*   **Kleidung:** 92% Recall (Sehr gut unterscheidbare Textur).
+Die häufigsten Verwechslungen finden zwischen *Glas* und *Plastik* statt, was aufgrund der Transparenz beider Materialien für Computer Vision erwartbar ist.
 
-**Einleitung (3 Min)**
-*   **Folie 1: Intro.** Projektziel & Relevanz (Mülltrennung ist schwer).
-*   **Folie 2: Die Herausforderung.** Visuelle Varianz (Zerknülltes Papier vs. flaches Papier).
+## 5. Implementierung
+Das System wurde in **Python** (Google Colab, A100 GPU) umgesetzt:
+*   **Framework:** TensorFlow / Keras.
+*   **Daten-Pipeline:** `tf.keras.utils.image_dataset_from_directory` für effizientes Streaming.
+*   **Architektur:** Sequential Model mit `Conv2D`, `BatchNormalization`, `ELU`, `MaxPooling2D` und `GlobalAveragePooling2D`.
 
-**Die Reise (12 Min - Der Kern)**
-*   **Folie 3: Akt 1 (Baseline).** Grafik: Riesiger Gap zwischen Train/Val. -> *Diagnose: Overfitting.*
-*   **Folie 4: Akt 2 (Regularisierung).** Grafik: Kurven treffen sich, aber tief. -> *Diagnose: Underfitting (zu wenig Gehirn).*
-*   **Folie 5: Akt 3 (Scale).** Architektur-Diagramm (5 Blöcke). -> *Lösung: Mehr Neuronen = Mehr Verständnis.*
-*   **Folie 6: Akt 4 (Optimization).** Run 4 Kurve (glatt). Erklärung: Warum ELU & He-Init besser sind als ReLU & Glorot. -> *Resultat: 85% Peak.*
-*   **Folie 7: Der Konflikt (Confusion Matrix).** Zeigen, dass Run 4 bei Metall versagt.
-*   **Folie 8: Akt 5 (Lösung).** Run 5 Confusion Matrix. -> *Resultat: Metall wird erkannt. Balance > Peak Score.*
+## 6. Zusammenfassung & Ausblick
+Das Projekt "Sorti" zeigt, dass ein **"From Scratch"**-Ansatz für spezialisierte Aufgaben konkurrenzfähige Ergebnisse (87%) liefern kann.
 
-**Abschluss (5 Min)**
-*   **Folie 9: Live-Demo / Beispiele.** Zeigen von Klassifizierungen (Richtig vs. Falsch).
-*   **Folie 10: Fazit.** "Wir brauchen nicht nur mehr Daten, wir brauchen besseres Training."
+**Wichtigste Erkenntnisse:**
+1.  **Architektur > Auflösung:** Eine mathematisch saubere Architektur (ELU/He-Init) auf kleinen Bildern (128px) schlägt Brute-Force (256px).
+2.  **Iterative Entwicklung:** Der Weg über Overfitting (Run 1) und Underfitting (Run 2) war notwendig, um die Grenzen der Architektur zu verstehen.
 
-### 7.2 Kernbotschaften (Q&A Vorbereitung)
-*   **Warum ist Run 5 besser, wenn Run 4 mehr % hat?**
-    *   "Weil ein Müllroboter, der 100% Papier erkennt aber 0% Metall, nutzlos ist. Run 5 ist ausgeglichen."
-*   **Was bringt GlobalAveragePooling?**
-    *   "Es reduziert Millionen von Parametern auf wenige Hundert. Das verhindert Overfitting im letzten Schritt extrem effektiv."
-*   **Warum ELU statt ReLU?**
-    *   "ReLU tötet Neuronen bei negativen Werten (Dying ReLU). ELU lässt sie leicht negativ sein, was den Informationsfluss in tiefen Netzen am Leben erhält."
-
----
-
-## 8. Literaturverzeichnis / Web-Quellen
-
-1.  **TensorFlow Core Team**, "Image classification Tutorial," *TensorFlow Core Documentation*. [Online]. Verfügbar: https://www.tensorflow.org/tutorials/images/classification.
-2.  **Gary Thung**, "TrashNet Dataset Repository," *GitHub*. [Online]. Verfügbar: https://github.com/garythung/trashnet.
-3.  **Jason Brownlee**, "A Gentle Introduction to the Rectified Linear Unit (ReLU)," *Machine Learning Mastery*. [Online]. Verfügbar: https://machinelearningmastery.com/rectified-linear-activation-function-for-deep-learning-neural-networks/.
-4.  **Keras Team**, "Keras Documentation: Layer Weight Initializers," *Keras.io*. [Online]. Verfügbar: https://keras.io/api/layers/initializers/.
+**Nächste Schritte:**
+*   **Transfer Learning:** Einsatz von EfficientNetB0, um die 95%-Marke zu knacken.
+*   **Deployment:** Integration des Modells in eine Mobile App zur Echtzeit-Erkennung an der Mülltonne.

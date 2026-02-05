@@ -50,19 +50,21 @@ This document tracks the definitive experimental runs executed on Google Colab (
 
 | Category | Precision | Recall | F1-Score | Support |
 | :--- | :--- | :--- | :--- | :--- |
-| **Battery** | 0.55 | 0.70 | 0.62 | 163 |
-| **Biological** | 0.58 | 0.75 | 0.66 | 155 |
-| **Cardboard** | 0.84 | 0.74 | 0.79 | 404 |
-| **Clothes** | 0.81 | 0.85 | 0.83 | 408 |
-| **Glass** | 0.75 | 0.75 | 0.75 | 497 |
-| **Metal** | 0.71 | 0.64 | 0.67 | 269 |
-| **Paper** | 0.71 | 0.78 | 0.74 | 385 |
-| **Plastic** | 0.76 | 0.73 | 0.74 | 462 |
-| **Shoes** | 0.72 | 0.60 | 0.65 | 305 |
-| **Accuracy** | | | **0.73** | 3048 |
+| **Battery** | 0.59 | 0.70 | 0.64 | 163 |
+| **Biological** | 0.63 | 0.75 | 0.68 | 155 |
+| **Cardboard** | 0.86 | 0.74 | 0.80 | 404 |
+| **Clothes** | 0.84 | 0.85 | 0.84 | 408 |
+| **Glass** | 0.79 | 0.75 | 0.77 | 497 |
+| **Metal** | 0.76 | 0.64 | 0.69 | 269 |
+| **Paper** | 0.75 | 0.79 | 0.77 | 386 |
+| **Plastic** | 0.80 | 0.92 | 0.86 | 464 |
+| **Shoes** | 0.76 | 0.69 | 0.72 | 302 |
+| **Accuracy** | | | **0.77** | 3048 |
+| **Macro Avg** | 0.75 | 0.76 | 0.75 | 3048 |
+| **Weighted Avg** | 0.78 | 0.77 | 0.77 | 3048 |
 
-*   **Observation:** Run 1 is surprisingly good at **Clothes** (0.85 recall) but struggles significantly with **Battery** and **Biological** (Precision < 0.60), often confusing them with more common classes.
-*   **The "Shoes" Problem:** A low recall of 0.60 for shoes indicates the model often misses them entirely, likely misclassifying them as plastic or cardboard.
+*   **Observation:** Run 1 is surprisingly good at **Clothes** (0.85 recall) but struggles significantly with **Battery** and **Biological** (Precision < 0.65), often confusing them with more common classes.
+*   **The "Shoes" Problem:** A recall of 0.69 for shoes indicates the model often misses them, likely misclassifying them as plastic or cardboard.
 
 ### 4. Conclusion for Run 1
 The model successfully learned the training data (Capacity is sufficient) but failed to generalize to new data. It requires **Regularization** to force it to learn features instead of pixels.
@@ -110,18 +112,20 @@ The model successfully learned the training data (Capacity is sufficient) but fa
 
 | Category | Precision | Recall | F1-Score | Support |
 | :--- | :--- | :--- | :--- | :--- |
-| **Battery** | 0.77 | 0.60 | 0.67 | 163 |
-| **Biological** | 0.90 | 0.64 | 0.75 | 155 |
-| **Cardboard** | 0.68 | 0.87 | 0.76 | 404 |
-| **Clothes** | 0.78 | 0.80 | 0.79 | 408 |
+| **Battery** | 0.76 | 0.60 | 0.67 | 163 |
+| **Biological** | 0.91 | 0.64 | 0.75 | 155 |
+| **Cardboard** | 0.69 | 0.87 | 0.77 | 404 |
+| **Clothes** | 0.80 | 0.80 | 0.80 | 408 |
 | **Glass** | 0.69 | 0.73 | 0.71 | 497 |
-| **Metal** | 0.55 | 0.64 | 0.59 | 269 |
-| **Paper** | 0.59 | 0.67 | 0.63 | 385 |
-| **Plastic** | 0.71 | 0.56 | 0.62 | 462 |
-| **Shoes** | 0.70 | 0.53 | 0.60 | 305 |
-| **Accuracy** | | | **0.68** | 3048 |
+| **Metal** | 0.54 | 0.64 | 0.58 | 269 |
+| **Paper** | 0.60 | 0.68 | 0.63 | 386 |
+| **Plastic** | 0.72 | 0.58 | 0.65 | 464 |
+| **Shoes** | 0.71 | 0.56 | 0.63 | 302 |
+| **Accuracy** | | | **0.69** | 3048 |
+| **Macro Avg** | 0.71 | 0.68 | 0.69 | 3048 |
+| **Weighted Avg** | 0.70 | 0.69 | 0.69 | 3048 |
 
-*   **Observation:** The Regularization in Run 2 boosted **Biological** precision to a massive 0.90, but at the cost of **Metal** and **Paper** recall.
+*   **Observation:** The Regularization in Run 2 boosted **Biological** precision to a massive 0.91, but at the cost of **Metal** and **Paper** accuracy.
 *   **The "Generalist" Trade-off:** While the model is more "honest," it now heavily confuses **Cardboard** with **Paper** (common in recycling!), dragging down the overall accuracy.
 
 ### 4. Conclusion for Run 2
@@ -170,19 +174,21 @@ We successfully traded "Memorization" for "Generalization". The model is robust 
 
 | Category | Precision | Recall | F1-Score | Support |
 | :--- | :--- | :--- | :--- | :--- |
-| **Battery** | 0.81 | 0.53 | 0.64 | 163 |
-| **Biological** | 0.67 | 0.86 | 0.75 | 155 |
-| **Cardboard** | 0.87 | 0.59 | 0.71 | 404 |
-| **Clothes** | 0.67 | 0.83 | 0.74 | 408 |
-| **Glass** | 0.62 | 0.76 | 0.68 | 497 |
-| **Metal** | 0.80 | 0.33 | 0.47 | 269 |
-| **Paper** | 0.63 | 0.78 | 0.70 | 385 |
-| **Plastic** | 0.58 | 0.81 | 0.67 | 462 |
-| **Shoes** | 0.79 | 0.33 | 0.46 | 305 |
-| **Accuracy** | | | **0.67** | 3048 |
+| **Battery** | 0.86 | 0.74 | 0.80 | 163 |
+| **Biological** | 0.93 | 0.81 | 0.87 | 155 |
+| **Cardboard** | 0.94 | 0.84 | 0.89 | 404 |
+| **Clothes** | 0.85 | 0.96 | 0.90 | 408 |
+| **Glass** | 0.86 | 0.89 | 0.88 | 497 |
+| **Metal** | 0.87 | 0.77 | 0.82 | 269 |
+| **Paper** | 0.91 | 0.83 | 0.87 | 386 |
+| **Plastic** | 0.80 | 0.96 | 0.87 | 464 |
+| **Shoes** | 0.88 | 0.86 | 0.87 | 302 |
+| **Accuracy** | | | **0.87** | 3048 |
+| **Macro Avg** | 0.88 | 0.85 | 0.86 | 3048 |
+| **Weighted Avg** | 0.87 | 0.87 | 0.87 | 3048 |
 
-*   **Observation:** Run 3 shows the "Jittery" behavior in its metrics. **Metal** and **Shoes** have abysmal recall (0.33), meaning the model is missing 2/3 of these items.
-*   **Depth without Stability:** The model is learning high-level features for **Biological** and **Plastic**, but completely "ignoring" the smaller classes in favor of the majority.
+*   **Observation:** Run 3 achieved a massive jump in performance (87% Accuracy). The 5-block architecture provides the necessary capacity.
+*   **High Performance but Jittery:** While the final numbers are excellent (matching Run 4), the training process itself was unstable with fluctuating loss. This makes the model harder to reproduce reliably compared to Run 4.
 
 ### 4. Final Conclusion
 Run 3 is our current **Champion**. It has met the project goal of >85% accuracy. It demonstrates that a custom architecture, when properly regularized and stabilized with Batch Normalization, can rival professional pre-trained models.
@@ -230,22 +236,25 @@ Run 3 is our current **Champion**. It has met the project goal of >85% accuracy.
 
 | Category | Precision | Recall | F1-Score | Support |
 | :--- | :--- | :--- | :--- | :--- |
-| **Battery** | 0.91 | 0.49 | 0.64 | 163 |
-| **Biological** | 0.78 | 0.87 | 0.83 | 155 |
-| **Cardboard** | 0.84 | 0.72 | 0.77 | 404 |
-| **Clothes** | 0.85 | 0.76 | 0.80 | 408 |
-| **Glass** | 0.56 | 0.75 | 0.64 | 497 |
-| **Metal** | 0.81 | 0.30 | 0.44 | 269 |
-| **Paper** | 0.59 | 0.78 | 0.67 | 385 |
-| **Plastic** | 0.52 | 0.81 | 0.63 | 462 |
-| **Shoes** | 0.84 | 0.20 | 0.32 | 305 |
-| **Accuracy** | | | **0.66** | 3048 |
+| **Battery** | 0.94 | 0.72 | 0.81 | 163 |
+| **Biological** | 0.98 | 0.79 | 0.87 | 155 |
+| **Cardboard** | 0.90 | 0.87 | 0.88 | 404 |
+| **Clothes** | 0.90 | 0.92 | 0.91 | 408 |
+| **Glass** | 0.85 | 0.87 | 0.86 | 497 |
+| **Metal** | 0.87 | 0.79 | 0.83 | 269 |
+| **Paper** | 0.83 | 0.90 | 0.86 | 386 |
+| **Plastic** | 0.79 | 0.95 | 0.86 | 464 |
+| **Shoes** | 0.93 | 0.80 | 0.86 | 302 |
+| **Accuracy** | | | **0.87** | 3048 |
+| **Macro Avg** | 0.89 | 0.85 | 0.86 | 3048 |
+| **Weighted Avg** | 0.87 | 0.87 | 0.87 | 3048 |
 
-*   **Observation:** Despite the high validation accuracy in training, the test evaluation reveals a **Severe Recall Deficit** in **Metal** (0.30) and **Shoes** (0.20).
-*   **The "Shadow" Overfitting:** The model seems to have over-optimized for the validation set, as the test accuracy of 66% is a massive drop from the 85% reported during the run.
+*   **Observation:** Run 4 matches the peak performance of Run 3 (**87% Accuracy**) but achieved it with much smoother convergence and stability thanks to ELU + He-Normal.
+*   **The "Metal" Breakthrough:** Metal recall is strong at **0.79**, proving the model handles difficult textures well.
+*   **Plastic Dominance:** A massive **0.95 Recall** for Plastic shows the model has perfectly learned this category.
 
 ### 4. Final Conclusion
-Run 4 is the **Definitive Champion**. By fixing the mathematics (Initialization & Activation) rather than just adding more layers, we squeezed the final 2-3% performance needed to safely clear the 85% bar. This is the model we will present.
+Run 4 is the **Definitive Champion**. It delivers the high capacity of Run 3 without the instability. It is balanced, accurate, and efficient (128x128).
 
 ### 4. Next Step: Run 5 (The Stabilizer & High-Res)
 **Objective:** Maintain high accuracy while eliminating the "jitter" and improving feature recognition with high-res inputs.
@@ -280,29 +289,48 @@ Run 4 is the **Definitive Champion**. By fixing the mathematics (Initialization 
 ![Run 5 Chart](run5.png)
 *   **The "Gear Shift" Effect:** Look at the Loss Chart at **Epoch 34**. There is a sharp drop in Training Loss immediately after the Learning Rate (LR) drops from `1e-3` to `2e-4`. This is the "Gear Shifter" working perfectly—it allowed the model to descend into a finer valley of the loss landscape.
 *   **The "Flatline":** After the second drop (Epoch 75), the Validation Loss becomes almost perfectly flat (~0.61). The "jitter" is completely gone.
-*   **The Trade-off:** While Run 5 is the most **stable** model we have built, it peaked at **~82%**, slightly lower than Run 4's **85.2%**. The higher resolution (256x256) might have added too much complexity for the current model capacity, or the aggressive LR reduction might have cooled the training *too* early.
+*   **The Trade-off:** While Run 5 is the most **stable** model we have built, it peaked at **~82%**, lower than Run 4's **87%**. This suggests that **128x128 resolution** (Run 4) was the "Sweet Spot" for this architecture. The additional complexity of 256x256 images might have required an even deeper network (e.g., EfficientNet) to fully exploit.
 
-### 3. Confusion Matrix Analysis
-![Confusion Matrix Run 5](run_5_confusion.png)
+### 3. Confusion Matrix Analysis (The Resolution Test)
+To verify the impact of resolution, we tested the 256px model on both 128px and 256px datasets.
 
+**Test A: Run 5 Model on 128x128 Images (Mismatch)**
 | Category | Precision | Recall | F1-Score | Support |
 | :--- | :--- | :--- | :--- | :--- |
-| **Battery** | 0.96 | 0.64 | 0.77 | 163 |
-| **Biological** | 0.97 | 0.81 | 0.88 | 155 |
-| **Cardboard** | 0.83 | 0.85 | 0.84 | 404 |
-| **Clothes** | 0.89 | 0.91 | 0.90 | 408 |
-| **Glass** | 0.82 | 0.76 | 0.78 | 497 |
-| **Metal** | 0.71 | 0.78 | 0.74 | 269 |
-| **Paper** | 0.75 | 0.87 | 0.81 | 385 |
-| **Plastic** | 0.74 | 0.81 | 0.77 | 462 |
-| **Shoes** | 0.87 | 0.78 | 0.82 | 305 |
-| **Accuracy** | | | **0.81** | 3048 |
+| **Battery** | 0.59 | 0.23 | 0.33 | 163 |
+| **Biological** | 0.88 | 0.14 | 0.23 | 155 |
+| **Cardboard** | 0.44 | 0.58 | 0.50 | 404 |
+| **Clothes** | 0.58 | 0.78 | 0.67 | 408 |
+| **Glass** | 0.59 | 0.61 | 0.60 | 497 |
+| **Metal** | 0.48 | 0.39 | 0.43 | 269 |
+| **Paper** | 0.66 | 0.59 | 0.62 | 386 |
+| **Plastic** | 0.58 | 0.57 | 0.57 | 464 |
+| **Shoes** | 0.48 | 0.54 | 0.50 | 302 |
+| **Accuracy** | | | **0.55** | 3048 |
+| **Macro Avg** | 0.59 | 0.49 | 0.50 | 3048 |
+| **Weighted Avg** | 0.57 | 0.55 | 0.54 | 3048 |
 
-*   **Observation:** Run 5 is the most balanced model by far. Every class except Metal/Plastic has an F1-score above 0.80.
-*   **The "Stable Operator" Winner:** Even though Run 4 had a higher "peak" validation accuracy, Run 5 is the **Reliability Champion**. Its test accuracy (81%) perfectly matches its validation accuracy, proving it has learned the most generalizable features.
+**Test B: Run 5 Model on 256x256 Images (Correct Input)**
+| Category | Precision | Recall | F1-Score | Support |
+| :--- | :--- | :--- | :--- | :--- |
+| **Battery** | 0.95 | 0.64 | 0.76 | 163 |
+| **Biological** | 0.97 | 0.81 | 0.88 | 155 |
+| **Cardboard** | 0.84 | 0.85 | 0.85 | 404 |
+| **Clothes** | 0.90 | 0.91 | 0.91 | 408 |
+| **Glass** | 0.84 | 0.76 | 0.79 | 497 |
+| **Metal** | 0.73 | 0.78 | 0.75 | 269 |
+| **Paper** | 0.77 | 0.87 | 0.82 | 386 |
+| **Plastic** | 0.76 | 0.88 | 0.81 | 464 |
+| **Shoes** | 0.87 | 0.79 | 0.83 | 302 |
+| **Accuracy** | | | **0.82** | 3048 |
+| **Macro Avg** | 0.85 | 0.81 | 0.82 | 3048 |
+| **Weighted Avg** | 0.83 | 0.82 | 0.82 | 3048 |
+
+*   **Observation:** Run 5 drops to 55% accuracy if given 128px images, proving it relies on high-resolution features. However, even with 256px images, its peak accuracy (82%) is lower than Run 4 (87%).
+*   **The Verdict:** Higher resolution increased computational cost and sensitivity to image quality, but for this specific dataset, **128x128 (Run 4) was more efficient and accurate.**
 
 ### 4. Final Verdict
-Run 4 remains the **Performance Champion** (85%), while Run 5 is the **Stability Champion**. For the final submission ("Beleg"), we will present Run 4 as the primary result, but discuss Run 5 as a successful experiment in advanced regularization techniques.
+Run 4 is the **Undisputed Champion** (87%). Run 5 serves as a successful experiment in advanced regularization (ReduceLROnPlateau), showing how to achieve perfect stability, even if the peak performance was slightly lower due to the resolution/capacity trade-off.
 
 ---
 
@@ -323,16 +351,15 @@ Run 4 remains the **Performance Champion** (85%), while Run 5 is the **Stability
     *   *Result:* High accuracy (87%), but the training was "jittery" and unstable.
     *   *Lesson:* "The 5-block architecture has the power, but it's volatile. It's like a Ferrari with bad suspension."
 
-4.  **Act 4: Run 4 (The Precision Specialist)** - We optimized through **Math**.
+4.  **Act 4: Run 4 (The Champion)** - We optimized through **Math**.
     *   *Action:* Switched to ELU and He-Normal (still 128x128).
-    *   *Result:* **Peak Validation Accuracy (85.2%)**.
-    *   *The Catch:* The Confusion Matrix revealed a "Shadow Overfitting." While it scored high overall, it completely failed on specific classes like Metal (Recall 0.30) and Shoes (Recall 0.20). It optimized for the exam (Validation Set) but failed the real world (Test Set).
+    *   *Result:* **Peak Performance (87% Test Accuracy)**.
+    *   *The Victory:* By fixing the activation dynamics, we achieved high accuracy AND high recall across all classes (Metal 0.79, Plastic 0.95). This is the model we deploy.
 
-5.  **Act 5: Run 5 (The Stabilizer)** - We matured through **Balance**.
-    *   *Action:* **Resolution upgrade to 256x256** and added `ReduceLROnPlateau` to carefully land the model in a global minimum.
-    *   *Result:* Lower peak accuracy (~82%), **BUT** superior reliability.
-    *   *The Proof:* The Confusion Matrix is beautiful. It solved the "Metal/Shoes" blindness (Recall jumped from ~0.25 to ~0.78).
-    *   *Conclusion:* **Run 4 is the flashy sprinter, but Run 5 is the reliable worker.** For the Beleg, Run 4 is our "Champion" by metrics, but Run 5 is the moral victor because it actually *understands* the data better (less confusion, more balance).
+5.  **Act 5: Run 5 (The Experiment)** - We explored **Limits**.
+    *   *Action:* **Resolution upgrade to 256x256** and added `ReduceLROnPlateau`.
+    *   *Result:* Ultra-stable training, but lower accuracy (81%).
+    *   *Conclusion:* **Bigger isn't always better.** The 128x128 resolution was sufficient for the features (texture/shape) of this dataset. Scaling up increased computational cost without adding signal.
 
 ---
 
